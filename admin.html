@@ -7,7 +7,7 @@
     <style>
         :root {
             --primary: #1a1a1a;
-            --accent: #d4af37; /* Ngjyrë ari elegante */
+            --accent: #d4af37;
             --bg: #f8f9fa;
             --white: #ffffff;
             --border: #e2e8f0;
@@ -23,7 +23,6 @@
             color: #333;
         }
 
-        /* Headeri i Adminit */
         header {
             background-color: var(--primary);
             color: var(--white);
@@ -38,7 +37,6 @@
             margin: 0;
             font-size: 24px;
             font-weight: 600;
-            letter-spacing: 1px;
         }
 
         header h1 span {
@@ -49,18 +47,21 @@
             max-width: 1400px;
             margin: 40px auto;
             padding: 0 20px;
+        }
+
+        .grid-top {
             display: grid;
             grid-template-columns: 1fr 2fr;
             gap: 30px;
+            margin-bottom: 40px;
         }
 
         @media (max-width: 992px) {
-            .container {
+            .grid-top {
                 grid-template-columns: 1fr;
             }
         }
 
-        /* Kartat/Seksionet */
         .card {
             background: var(--white);
             border-radius: 12px;
@@ -78,7 +79,6 @@
             margin-bottom: 20px;
         }
 
-        /* Formularët */
         label {
             display: block;
             font-weight: 600;
@@ -122,7 +122,6 @@
             background: #333;
         }
 
-        /* Tabelat */
         .table-responsive {
             overflow-x: auto;
         }
@@ -151,7 +150,6 @@
             background-color: #fcfcfc;
         }
 
-        /* Butoni Fshi */
         .btn-delete {
             background: var(--red);
             color: var(--white);
@@ -161,14 +159,12 @@
             cursor: pointer;
             font-weight: 600;
             font-size: 13px;
-            transition: background 0.2s ease;
         }
 
         .btn-delete:hover {
             background: var(--red-hover);
         }
     </style>
-    <!-- Lidhja me Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -179,58 +175,76 @@
 </header>
 
 <div class="container">
-    <!-- Kolona e Majtë: Shtimi i Produktit -->
-    <div class="card">
-        <h2>Shto Produkt të Ri</h2>
-        <form id="add-product-form">
-            <label for="prod-name">Emri i Produktit</label>
-            <input type="text" id="prod-name" required placeholder="p.sh. Serum Hidratues me Vitamine C">
+    <!-- Pjesa 1: Produktet -->
+    <div class="grid-top">
+        <div class="card">
+            <h2>Shto Produkt të Ri</h2>
+            <form id="add-product-form">
+                <label for="prod-name">Emri i Produktit</label>
+                <input type="text" id="prod-name" required placeholder="p.sh. Serum Hidratues">
 
-            <label for="prod-price">Çmimi (€)</label>
-            <input type="number" step="0.01" id="prod-price" required placeholder="p.sh. 19.99">
+                <label for="prod-price">Çmimi (€)</label>
+                <input type="number" step="0.01" id="prod-price" required placeholder="p.sh. 19.99">
 
-            <label for="prod-category">Kategoria</label>
-            <select id="prod-category">
-                <option value="Fytyrë">Fytyrë</option>
-                <option value="Trup">Trup</option>
-                <option value="Flokë">Flokë</option>
-                <option value="Parfume">Parfume</option>
-            </select>
+                <label for="prod-category">Kategoria</label>
+                <select id="prod-category">
+                    <option value="Fytyrë">Fytyrë</option>
+                    <option value="Trup">Trup</option>
+                    <option value="Flokë">Flokë</option>
+                    <option value="Parfume">Parfume</option>
+                </select>
 
-            <label for="prod-desc">Përshkrimi i Produktit</label>
-            <textarea id="prod-desc" rows="4" required placeholder="Shkruaj përbërësit ose mënyrën e përdorimit..."></textarea>
+                <label for="prod-desc">Përshkrimi i Produktit</label>
+                <textarea id="prod-desc" rows="4" required placeholder="Shkruaj përshkrimin..."></textarea>
 
-            <label for="prod-img-url">Linku i Fotos (URL)</label>
-            <input type="url" id="prod-img-url" required placeholder="Vendos URL e imazhit të produktit...">
+                <label for="prod-img-url">Linku i Fotos (URL)</label>
+                <input type="url" id="prod-img-url" required placeholder="Vendos URL e imazhit të produktit...">
 
-            <button type="submit" class="btn-submit">Shto Produktin</button>
-        </form>
+                <button type="submit" class="btn-submit">Shto Produktin</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>Produktet Aktive në Dyqan</h2>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Foto</th>
+                            <th>Emri</th>
+                            <th>Kategoria</th>
+                            <th>Çmimi</th>
+                            <th>Përshkrimi</th>
+                            <th>Veprime</th>
+                        </tr>
+                    </thead>
+                    <tbody id="product-list"></tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
-    <!-- Kolona e Djathtë: Lista e Produkteve Ekzistuese -->
-    <div class="card">
-        <h2>Produktet Aktive në Dyqan</h2>
+    <!-- Pjesa 2: Menaxhimi i Porosive (E re!) -->
+    <div class="card" style="margin-top: 40px;">
+        <h2>Porositë e Klientëve</h2>
         <div class="table-responsive">
             <table>
                 <thead>
                     <tr>
-                        <th>Foto</th>
-                        <th>Emri</th>
-                        <th>Kategoria</th>
-                        <th>Çmimi</th>
-                        <th>Përshkrimi</th>
+                        <th>ID</th>
+                        <th>Klienti</th>
+                        <th>Produktet e Porositura</th>
+                        <th>Totali</th>
+                        <th>Statusi</th>
                         <th>Veprime</th>
                     </tr>
                 </thead>
-                <tbody id="product-list">
-                    <!-- Produktet do të gjenerohen automatikisht këtu -->
-                </tbody>
+                <tbody id="order-list"></tbody>
             </table>
         </div>
     </div>
 </div>
 
-<!-- Ngarkimi i konfigurimit dhe logjikës -->
 <script src="js/supabase-config.js"></script>
 <script src="js/admin.js"></script>
 
