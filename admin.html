@@ -42,6 +42,24 @@
 
         form { background: #fff; border: 1px solid #EBE3DB; padding: 20px; border-radius: 10px; max-width: 500px; display: flex; flex-direction: column; gap: 12px; }
         input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+        
+        .file-upload-box {
+            border: 2px dashed #E5A893;
+            padding: 15px;
+            text-align: center;
+            border-radius: 8px;
+            background: #FFFBF8;
+            cursor: pointer;
+        }
+        .preview-img {
+            max-width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-top: 10px;
+            display: none;
+        }
+
         .btn-submit { background: #E5A893; color: white; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
         .btn-submit:hover { background: #D2917C; }
         
@@ -53,7 +71,7 @@
         .btn-delete:hover { background: #cc0000; }
         
         .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
-        .product-card { background: #fff; border: 1px solid #EBE3DB; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; }
+        .product-card { background: #fff; border: 1px solid #EBE3DB; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; justify-between; }
         .product-card img { width: 100%; height: 140px; object-fit: cover; border-radius: 6px; margin-bottom: 8px; }
     </style>
 </head>
@@ -121,8 +139,11 @@
                     <label for="p-cmimi">Çmimi (€):</label>
                     <input type="number" step="0.01" id="p-cmimi" required placeholder="19.99">
 
-                    <label for="p-foto">URL e Fotos:</label>
-                    <input type="url" id="p-foto" required placeholder="https://...">
+                    <label for="p-foto-file">Foto e Produktit (Galeri / Foto):</label>
+                    <div class="file-upload-box">
+                        <input type="file" id="p-foto-file" accept="image/*" required onchange="tregoFotoPreview(event)">
+                        <img id="img-preview" class="preview-img" alt="Foto e zgjedhur">
+                    </div>
 
                     <label for="p-kategoria">Kategoria:</label>
                     <select id="p-kategoria">
@@ -158,6 +179,7 @@
     <script>
         var produkteAktiv = [];
         var porosiAktiv = [];
+        var fotoEKonvertuar = "";
 
         function shfaqSeksionin(seksjoniId, butoni) {
             var tabs = document.querySelectorAll('.section-tab');
@@ -175,6 +197,21 @@
             }
             if (butoni) {
                 butoni.classList.add('active');
+            }
+        }
+
+        // LEXON FOTON NGA GALERIA DHE E TREGON NE FORMULAR
+        function tregoFotoPreview(e) {
+            var file = e.target.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(evt) {
+                    fotoEKonvertuar = evt.target.result;
+                    var preview = document.getElementById('img-preview');
+                    preview.src = fotoEKonvertuar;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
             }
         }
 
@@ -246,12 +283,19 @@
             e.preventDefault();
             var emri = document.getElementById('p-emri').value;
             var cmimi = parseFloat(document.getElementById('p-cmimi').value);
-            var foto = document.getElementById('p-foto').value;
             var kategoria = document.getElementById('p-kategoria').value;
 
-            produkteAktiv.push({ emri: emri, cmimi: cmimi, foto: foto, kategoria: kategoria });
-            alert("Produkti u shtua me sukses!");
+            if (!fotoEKonvertuar) {
+                alert("Ju lutem zgjidhni një foto nga galeria apo skedarët.");
+                return;
+            }
+
+            produkteAktiv.push({ emri: emri, cmimi: cmimi, foto: fotoEKonvertuar, kategoria: kategoria });
+            alert("Produkti u shtua me sukses me foton nga galeria!");
+            
             this.reset();
+            fotoEKonvertuar = "";
+            document.getElementById('img-preview').style.display = 'none';
             renditProduktet();
             shfaqSeksionin('produkte', document.querySelectorAll('.nav-button')[1]);
         });
