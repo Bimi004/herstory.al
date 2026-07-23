@@ -1,103 +1,113 @@
-﻿// Ruajtja e gjendjes së shportës dhe produkteve
-let products = [];
 let cart = [];
 
-// 1. Shkarkimi i produkteve nga Supabase
-async function fetchProducts() {
+document.addEventListener('DOMContentLoaded', () => {
+    fetchClientProducts();
+});
+
+// 1. Merr produktet nga Supabase dhe i shfaq te Klienti
+async function fetchClientProducts() {
+    const grid = document.getElementById('products-grid');
+    if (!grid) return;
+
+    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px;">Duke ngarkuar produktet...</div>';
+
     try {
-        const { data, error } = await supabase
+        const { data: products, error } = await db
             .from('products')
-            .select('*');
+            .select('*')
+            .order('id', { ascending: false });
 
         if (error) throw error;
-        
-        products = data;
-        renderProducts(products);
-    } catch (error) {
-        console.error("Gabim gjatë marrjes së produkteve:", error.message);
-    }
-}
 
-// 2. Shfaqja e produkteve në HTML
-function renderProducts(productsToDisplay) {
-    const grid = document.getElementById('client-products-grid');
-    if (!grid) return;
-    
-    grid.innerHTML = '';
+        grid.innerHTML = '';
 
-    if (productsToDisplay.length === 0) {
-        grid.innerHTML = `<p class="col-span-full text-center text-gray-500 py-8">Nuk u gjet asnjë produkt.</p>`;
-        return;
-    }
+        if (!products || products.length === 0) {
+            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px;">Nuk ka produkte për të shfaqur.</div>';
+            return;
+        }
 
-    productsToDisplay.forEach(product => {
-        grid.innerHTML += `
-            <div class="bg-white rounded-2xl overflow-hidden border border-herstory-border group hover:shadow-xl transition-all duration-300 flex flex-col h-full">
-                <div class="relative aspect-square bg-herstory-light overflow-hidden">
-                    <img src="${product.image_url || 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400'}" 
-                         alt="${product.name}" 
-                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                    <span class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-[10px] font-bold uppercase tracking-widest text-herstory-dark px-2.5 py-1 rounded-full border border-herstory-border">
-                        ${product.category}
-                    </span>
+        window.allProducts = products; // I ruajmë në memorie
+
+        products.forEach(product => {
+            const card = document.createElement('div');
+            card.className = "bg-white rounded-2xl overflow-hidden border border-herstory-border group hover:shadow-xl transition-all duration-300 flex flex-col h-full";
+            card.innerHTML = \
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="\" alt="\" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://via.placeholder.com/300'">
+                    <span class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-[10px] font-bold uppercase tracking-widest text-herstory-dark px-2.5 py-1 rounded-full border border-herstory-border">\</span>
                 </div>
-                <div class="p-4 sm:p-5 flex flex-col flex-1 justify-between gap-4">
-                    <div class="flex flex-col gap-1">
-                        <h3 class="font-serif font-bold text-base sm:text-lg tracking-tight text-herstory-dark group-hover:text-herstory-rose transition-colors line-clamp-1">${product.name}</h3>
-                        <p class="text-xs text-herstory-dark/60 line-clamp-2">${product.description || ''}</p>
+                <div class="p-5 flex flex-col flex-grow justify-between">
+                    <div>
+                        <h3 class="font-serif font-bold text-lg text-herstory-dark mb-1">\</h3>
+                        <p class="text-xs text-gray-500 line-clamp-2 mb-4">\</p>
                     </div>
                     <div class="flex items-center justify-between mt-auto pt-2 border-t border-herstory-light">
-                        <span class="text-base font-bold text-herstory-dark">€${product.price}</span>
-                        <button onclick="addToCart(${product.id})" class="bg-herstory-dark hover:bg-herstory-rose text-white hover:text-white p-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center">
-                            <i class="fa-solid fa-plus text-xs"></i>
+                        <span class="font-bold text-lg text-herstory-dark">\ €</span>
+                        <button onclick="addToCart(\)" class="bg-herstory-dark hover:bg-herstory-rose text-white p-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center">
+                            Shto në Shportë
                         </button>
                     </div>
                 </div>
-            </div>
-        `;
-    });
-}
-
-// 3. Filtrimi i produkteve sipas kategorive
-function filterCategory(category) {
-    document.querySelectorAll('.category-nav-btn').forEach(btn => {
-        btn.classList.remove('text-herstory-rose', 'border-b-2', 'border-herstory-rose', 'font-semibold');
-    });
-    
-    if (category === 'all') {
-        renderProducts(products);
-    } else {
-        const filtered = products.filter(p => p.category === category);
-        renderProducts(filtered);
+            \;
+            grid.appendChild(card);
+        });
+    } catch (err) {
+        console.error('Gabim gjatë ngarkimit të produkteve:', err);
+        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: red;">Gabim gjatë ngarkimit të produkteve.</div>';
     }
 }
 
-// 4. Logjika e Shportës
+// 2. Menaxhimi i Shportës
 function addToCart(productId) {
-    const product = products.find(p => p.id === productId);
+    const product = window.allProducts ? window.allProducts.find(p => p.id === productId) : null;
     if (!product) return;
 
-    const cartItem = cart.find(item => item.id === productId);
-    if (cartItem) {
-        cartItem.quantity += 1;
+    const existing = cart.find(item => item.id === productId);
+    if (existing) {
+        existing.quantity += 1;
     } else {
-        cart.push({ ...product, quantity: 1 });
+        cart.push({ id: product.id, name: product.name, price: product.price, quantity: 1 });
     }
+
     updateCartBadge();
+    alert('Produkti u shtua në shportë!');
 }
 
 function updateCartBadge() {
     const badge = document.getElementById('cart-badge');
-    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    
-    if (totalItems > 0) {
-        badge.innerText = totalItems;
-        badge.classList.remove('scale-0');
-        badge.classList.add('scale-100');
-    } else {
-        badge.classList.remove('scale-100');
-        badge.classList.add('scale-0');
+    if (badge) {
+        const total = cart.reduce((sum, item) => sum + item.quantity, 0);
+        badge.innerText = total;
     }
 }
 
-document.addEventListener('DOMContentLoaded', fetchProducts);
+// 3. Dërgimi i Porosisë (Checkout)
+async function submitOrder(clientName, clientPhone, clientAddress) {
+    if (cart.length === 0) {
+        alert('Shporta është bosh!');
+        return;
+    }
+
+    const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+    try {
+        const { data, error } = await db
+            .from('orders')
+            .insert([{
+                client_name: clientName,
+                client_phone: clientPhone,
+                client_address: clientAddress,
+                items: cart,
+                total_price: totalPrice,
+                status: 'E re'
+            }]);
+
+        if (error) throw error;
+
+        alert('🎉 Porosia juaj u krye me sukses!');
+        cart = [];
+        updateCartBadge();
+    } catch (err) {
+        alert('❌ Gabim gjatë dërgimit të porosisë: ' + err.message);
+    }
+}
