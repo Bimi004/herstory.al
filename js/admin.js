@@ -1,205 +1,129 @@
-document.addEventListener('DOMContentLoaded', async () => {
-    console.log('Paneli i Adminit u ngarkua...');
-    await loadProducts();
-    await loadOrders();
+// Inicializimi i Supabase direkt
+const SUPABASE_URL = 'https://zvqesypyijgtuqefmsqf.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2cWVzeXB5aWpndHVxZWZtc3FmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg1MzUzODUsImV4cCI6MjA1NDExMTM4NX0.4C26CvhS4P84g60L3yT6u_YJIs4yJb2s2k9_Wk6YJpE';
 
-    const addForm = document.getElementById('add-product-form');
-    if (addForm) {
-        addForm.addEventListener('submit', handleAddProduct);
+let supabaseClient;
+
+window.addEventListener('DOMContentLoaded', () => {
+    if (window.supabase) {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        loadProducts();
+        loadOrders();
+    } else {
+        alert('Libraria e Supabase nuk u ngarkua. Kontrollo internetin ose rifresko faqen.');
+    }
+
+    const form = document.getElementById('add-product-form');
+    if (form) {
+        form.addEventListener('submit', handleAddProduct);
     }
 });
-
-// ==========================================
-// 1. MENAXHIMI I PRODUKTEVE
-// ==========================================
 
 async function loadProducts() {
     const list = document.getElementById('product-list');
     if (!list) return;
 
-    list.innerHTML = '<tr><td colspan="6" style="text-align:center;">Duke ngarkuar produktet...</td></tr>';
+    const { data: products, error } = await supabaseClient
+        .from('products')
+        .select('*')
+        .order('id', { ascending: false });
 
-    try {
-        const { data: products, error } = await db
-            .from('products')
-            .select('*')
-            .order('id', { ascending: false });
-
-        if (error) throw error;
-
-        list.innerHTML = '';
-
-        if (!products || products.length === 0) {
-            list.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#888;">Nuk ka asnjë produkt në dyqan.</td></tr>';
-            return;
-        }
-
-        products.forEach(p => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = \
-                <td><img src="\" alt="\" style="width:45px; height:45px; object-fit:cover; border-radius:6px;" onerror="this.src='https://via.placeholder.com/45'"></td>
-                <td style="font-weight:600;">\</td>
-                <td>\</td>
-                <td><strong>\ €</strong></td>
-                <td><span style="font-size:12px; color:#666; display:block; max-width:180px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">\</span></td>
-                <td>
-                    <button class="btn-delete" onclick="deleteProduct(\)">Fshi</button>
-                </td>
-            \;
-            list.appendChild(tr);
-        });
-    } catch (err) {
-        console.error('Gabim te loadProducts:', err);
-        list.innerHTML = \<tr><td colspan="6" style="text-align:center; color:red;">Gabim: \</td></tr>\;
+    if (error) {
+        list.innerHTML = '<tr><td colspan="6" style="color:red; text-align:center;">Gabim: ' + error.message + '</td></tr>';
+        return;
     }
+
+    list.innerHTML = '';
+    if (!products || products.length === 0) {
+        list.innerHTML = '<tr><td colspan="6" style="text-align:center;">Bosh. Nuk ka produkte.</td></tr>';
+        return;
+    }
+
+    products.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = \
+            <td><img src="\" style="width:40px; height:40px; object-fit:cover;"></td>
+            <td><strong>\</strong></td>
+            <td>\</td>
+            <td>\ €</td>
+            <td>\</td>
+            <td><button class="btn-delete" onclick="deleteProduct(\)">Fshi</button></td>
+        \;
+        list.appendChild(tr);
+    });
 }
 
 async function handleAddProduct(e) {
     e.preventDefault();
 
-    const name = document.getElementById('prod-name').value.trim();
+    const name = document.getElementById('prod-name').value;
     const price = parseFloat(document.getElementById('prod-price').value);
     const category = document.getElementById('prod-category').value;
-    const description = document.getElementById('prod-desc').value.trim();
-    const imageUrl = document.getElementById('prod-img-url').value.trim();
+    const description = document.getElementById('prod-desc').value;
+    const imageUrl = document.getElementById('prod-img-url').value;
 
-    if (!name || isNaN(price) || !imageUrl) {
-        alert('Ju lutem plotësoni emrin, çmimin dhe linkun e fotos saktë!');
-        return;
-    }
+    const { data, error } = await supabaseClient
+        .from('products')
+        .insert([{ name, price, category, description, image_url: imageUrl }]);
 
-    const btn = e.target.querySelector('button[type="submit"]');
-    const originalText = btn.innerText;
-    btn.disabled = true;
-    btn.innerText = 'Duke u dërguar...';
-
-    try {
-        const { data, error } = await db
-            .from('products')
-            .insert([{ name, price, category, description, image_url: imageUrl }]);
-
-        if (error) throw error;
-
-        alert('✅ Produkti u shtua me sukses!');
-        e.target.reset();
-        await loadProducts();
-    } catch (err) {
-        console.error('Gabim gjatë shtimit:', err);
-        alert('❌ Gabim nga Supabase: ' + err.message);
-    } finally {
-        btn.disabled = false;
-        btn.innerText = originalText;
+    if (error) {
+        alert('GABIM NGA SUPABASE: ' + error.message);
+    } else {
+        alert('Produkti u shtua me sukses!');
+        document.getElementById('add-product-form').reset();
+        loadProducts();
     }
 }
 
 async function deleteProduct(id) {
-    if (!confirm('A jeni 100% të sigurt që dëshironi ta fshini këtë produkt?')) return;
+    if (!confirm('Ta fshijmë këtë produkt?')) return;
 
-    try {
-        const { error } = await db
-            .from('products')
-            .delete()
-            .eq('id', id);
+    const { error } = await supabaseClient
+        .from('products')
+        .delete()
+        .eq('id', id);
 
-        if (error) throw error;
-
+    if (error) {
+        alert('Gabim gjatë fshirjes: ' + error.message);
+    } else {
         alert('Produkti u fshi!');
-        await loadProducts();
-    } catch (err) {
-        alert('Gabim gjatë fshirjes: ' + err.message);
+        loadProducts();
     }
 }
-
-// ==========================================
-// 2. MENAXHIMI I POROSIVE
-// ==========================================
 
 async function loadOrders() {
     const list = document.getElementById('order-list');
     if (!list) return;
 
-    list.innerHTML = '<tr><td colspan="6" style="text-align:center;">Duke ngarkuar porositë...</td></tr>';
+    const { data: orders, error } = await supabaseClient
+        .from('orders')
+        .select('*')
+        .order('id', { ascending: false });
 
-    try {
-        const { data: orders, error } = await db
-            .from('orders')
-            .select('*')
-            .order('id', { ascending: false });
+    if (error) return;
 
-        if (error) throw error;
-
-        list.innerHTML = '';
-
-        if (!orders || orders.length === 0) {
-            list.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#888;">Nuk ka asnjë porosi ende.</td></tr>';
-            return;
-        }
-
-        orders.forEach(o => {
-            let itemsText = '';
-            if (Array.isArray(o.items)) {
-                itemsText = o.items.map(i => \<div>• \ (\x)</div>\).join('');
-            } else {
-                itemsText = '<em>Detajet e produktit</em>';
-            }
-
-            const tr = document.createElement('tr');
-            tr.innerHTML = \
-                <td>#\</td>
-                <td>
-                    <strong>\</strong><br>
-                    <small style="color:#555;">📱 \</small><br>
-                    <small style="color:#555;">📍 \</small>
-                </td>
-                <td style="font-size:13px;">\</td>
-                <td><strong>\ €</strong></td>
-                <td>
-                    <select onchange="updateOrderStatus(\, this.value)" style="padding:4px 8px; font-size:12px;">
-                        <option value="E re" \>E re</option>
-                        <option value="Në proces" \>Në proces</option>
-                        <option value="E dërguar" \>E dërguar</option>
-                    </select>
-                </td>
-                <td>
-                    <button class="btn-delete" style="padding:5px 10px;" onclick="deleteOrder(\)">Fshi</button>
-                </td>
-            \;
-            list.appendChild(tr);
-        });
-    } catch (err) {
-        console.error('Gabim te loadOrders:', err);
-        list.innerHTML = \<tr><td colspan="6" style="text-align:center; color:red;">Gabim: \</td></tr>\;
+    list.innerHTML = '';
+    if (!orders || orders.length === 0) {
+        list.innerHTML = '<tr><td colspan="6" style="text-align:center;">Nuk ka porosi.</td></tr>';
+        return;
     }
-}
 
-async function updateOrderStatus(id, newStatus) {
-    try {
-        const { error } = await db
-            .from('orders')
-            .update({ status: newStatus })
-            .eq('id', id);
-
-        if (error) throw error;
-        alert('Statusi u ndryshua!');
-    } catch (err) {
-        alert('Gabim: ' + err.message);
-    }
+    orders.forEach(o => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = \
+            <td>#\</td>
+            <td>\<br><small>\</small></td>
+            <td>\</td>
+            <td>\ €</td>
+            <td>\</td>
+            <td><button class="btn-delete" onclick="deleteOrder(\)">Fshi</button></td>
+        \;
+        list.appendChild(tr);
+    });
 }
 
 async function deleteOrder(id) {
-    if (!confirm('Dëshironi ta fshini këtë porosi?')) return;
-    try {
-        const { error } = await db.from('orders').delete().eq('id', id);
-        if (error) throw error;
-        alert('Porosia u fshi!');
-        await loadOrders();
-    } catch (err) {
-        alert('Gabim: ' + err.message);
-    }
-}
-
-// Ndihmës për mbrojtje nga XSS (siguri)
-function escapeHtml(text) {
-    if (!text) return '';
-    return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    if (!confirm('Ta fshijmë këtë porosi?')) return;
+    const { error } = await supabaseClient.from('orders').delete().eq('id', id);
+    if (!error) loadOrders();
 }
