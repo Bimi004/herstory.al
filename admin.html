@@ -8,14 +8,11 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
         body { background-color: #FAF6F0; color: #241E1D; display: flex; flex-direction: column; min-height: 100vh; }
         
-        /* HEADER */
-        header { background: #fff; padding: 15px 20px; border-bottom: 1px solid #EBE3DB; display: flex; justify-content: space-between; items-center; }
+        header { background: #fff; padding: 15px 20px; border-bottom: 1px solid #EBE3DB; display: flex; justify-content: space-between; align-items: center; }
         .logo-title { font-weight: bold; font-size: 18px; color: #241E1D; }
         
-        /* LAYOUT */
         .admin-container { display: flex; flex: 1; flex-direction: row; }
         
-        /* SIDEBAR / NAVIGATION */
         aside { width: 240px; background: #fff; border-right: 1px solid #EBE3DB; padding: 20px 10px; }
         .nav-button { 
             display: block; 
@@ -34,18 +31,15 @@
         .nav-button:hover { background: #E5A893; color: #fff; }
         .nav-button.active { background: #E5A893; color: #fff; border-color: #D2917C; }
 
-        /* MAIN CONTENT AREA */
         main { flex: 1; padding: 25px; }
         .section-tab { display: none; }
         .section-tab.active { display: block; }
 
-        /* CARDS / STATS */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
         .card { background: #fff; border: 1px solid #EBE3DB; border-radius: 10px; padding: 15px; }
         .card-title { font-size: 12px; color: #666; font-weight: bold; }
         .card-value { font-size: 22px; font-weight: bold; margin-top: 5px; color: #241E1D; }
 
-        /* FORMS & TABLES */
         form { background: #fff; border: 1px solid #EBE3DB; padding: 20px; border-radius: 10px; max-width: 500px; display: flex; flex-direction: column; gap: 12px; }
         input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
         .btn-submit { background: #E5A893; color: white; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
@@ -59,24 +53,44 @@
         .btn-delete:hover { background: #cc0000; }
         
         .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
-        .product-card { background: #fff; border: 1px solid #EBE3DB; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; justify-between; }
+        .product-card { background: #fff; border: 1px solid #EBE3DB; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; }
         .product-card img { width: 100%; height: 140px; object-fit: cover; border-radius: 6px; margin-bottom: 8px; }
     </style>
+
+    <!-- FUNKSIONI I BUTONAVE - DEKLAROHET DIREKT NE HEAD QE TE MOS DALE REFERENCE ERROR -->
+    <script>
+        window.shfaqSeksionin = function(seksjoniId, butoni) {
+            document.querySelectorAll('.section-tab').forEach(function(el) {
+                el.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-button').forEach(function(btn) {
+                btn.classList.remove('active');
+            });
+
+            var target = document.getElementById(seksjoniId);
+            if (target) {
+                target.classList.add('active');
+            }
+            if (butoni) {
+                butoni.classList.add('active');
+            }
+        };
+    </script>
 </head>
 <body>
 
     <header>
         <div class="logo-title">🌸 HerStory Admin Panel</div>
-        <div><small style="color: green; font-weight: bold;">● Paneli i Gatshëm</small></div>
+        <div><small style="color: green; font-weight: bold;">● Paneli i Aktivizuar</small></div>
     </header>
 
     <div class="admin-container">
         <!-- SIDEBAR -->
         <aside>
-            <button class="nav-button active" onclick="shfaqSeksionin('dashboard', this)">📊 Dashboard</button>
-            <button class="nav-button" onclick="shfaqSeksionin('produkte', this)">🛍️ Produktet</button>
-            <button class="nav-button" onclick="shfaqSeksionin('shto-produkt', this)">➕ Shto Produkt</button>
-            <button class="nav-button" onclick="shfaqSeksionin('porosite', this)">📦 Porositë</button>
+            <button type="button" class="nav-button active" onclick="window.shfaqSeksionin('dashboard', this)">📊 Dashboard</button>
+            <button type="button" class="nav-button" onclick="window.shfaqSeksionin('produkte', this)">🛍️ Produktet</button>
+            <button type="button" class="nav-button" onclick="window.shfaqSeksionin('shto-produkt', this)">➕ Shto Produkt</button>
+            <button type="button" class="nav-button" onclick="window.shfaqSeksionin('porosite', this)">📦 Porositë</button>
         </aside>
 
         <!-- MAIN CONTENT -->
@@ -114,9 +128,7 @@
             <!-- 2. PRODUKTET -->
             <div id="produkte" class="section-tab">
                 <h2>Katalogu i Produkteve</h2>
-                <div class="products-grid" id="lista-produkteve">
-                    <!-- Produktet shfaqen këtu -->
-                </div>
+                <div class="products-grid" id="lista-produkteve"></div>
             </div>
 
             <!-- 3. SHTO PRODUKT -->
@@ -150,75 +162,37 @@
                     <thead>
                         <tr>
                             <th>Klienti</th>
-                            <th>Telefoni</th>
-                            <th>Adresa</th>
+                            <th>Telefoni / Adresa</th>
                             <th>Totali</th>
-                            <th>Option</th>
+                            <th>Veprime</th>
                         </tr>
                     </thead>
                     <tbody id="tabela-porosive-plote">
-                        <tr><td colspan="5">Nuk ka porosi të regjistruara.</td></tr>
+                        <tr><td colspan="4">Nuk ka porosi të regjistruara.</td></tr>
                     </tbody>
                 </table>
             </div>
         </main>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/supabase-config.js"></script>
-
+    <!-- LOGJIKA E TE DHENAVE -->
     <script>
-        // TE DHENAT LOKALE NESE SUPABASE BLLOKOHET
-        let produkteAktiv = [];
-        let porosiAktiv = [];
-
-        // FUNKSIONI KRYESOR I BUTONAVE
-        function shfaqSeksionin(seksjoniId, butoni) {
-            // Fshih te gjitha seksionet
-            document.querySelectorAll('.section-tab').forEach(el => el.classList.remove('active'));
-            
-            // Hiq ngjyren nga butonat
-            document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
-
-            // Shfaq seksionin qe u klikua
-            document.getElementById(seksjoniId).classList.add('active');
-            
-            // Bej butonin aktiv
-            butoni.classList.add('active');
-        }
-
-        document.addEventListener('DOMContentLoaded', async () => {
-            await ngarkoTeDhenat();
-        });
-
-        async function ngarkoTeDhenat() {
-            if (typeof db !== 'undefined') {
-                try {
-                    const { data: p } = await db.from('products').select('*');
-                    if (p) produkteAktiv = p;
-
-                    const { data: o } = await db.from('orders').select('*');
-                    if (o) porosiAktiv = o;
-                } catch(e) {
-                    console.log("Supabase error, duke perdorur ruajtje lokale.");
-                }
-            }
-
-            renditProduktet();
-            renditPorosite();
-        }
+        var produkteAktiv = [];
+        var porosiAktiv = [];
 
         function renditProduktet() {
-            const grid = document.getElementById('lista-produkteve');
-            document.getElementById('stat-produkte').innerText = produkteAktiv.length;
-            grid.innerHTML = '';
+            var grid = document.getElementById('lista-produkteve');
+            var stat = document.getElementById('stat-produkte');
+            if (stat) stat.innerText = produkteAktiv.length;
+            if (!grid) return;
 
+            grid.innerHTML = '';
             if (produkteAktiv.length === 0) {
                 grid.innerHTML = '<p>Nuk ka produkte. Shto një te menuja "Shto Produkt".</p>';
                 return;
             }
 
-            produkteAktiv.forEach((p, index) => {
+            produkteAktiv.forEach(function(p, index) {
                 grid.innerHTML += 
                     <div class="product-card">
                         <img src="">
@@ -231,66 +205,60 @@
         }
 
         function renditPorosite() {
-            const tBody = document.getElementById('tabela-porosive-dashboard');
-            const tBody2 = document.getElementById('tabela-porosive-plote');
-            document.getElementById('stat-porosi').innerText = porosiAktiv.length;
+            var tBody = document.getElementById('tabela-porosive-dashboard');
+            var tBody2 = document.getElementById('tabela-porosive-plote');
+            var stat = document.getElementById('stat-porosi');
+            if (stat) stat.innerText = porosiAktiv.length;
 
             if (porosiAktiv.length === 0) return;
 
-            tBody.innerHTML = '';
-            tBody2.innerHTML = '';
+            if (tBody) tBody.innerHTML = '';
+            if (tBody2) tBody2.innerHTML = '';
 
-            porosiAktiv.forEach((o, index) => {
-                const row = 
+            porosiAktiv.forEach(function(o, index) {
+                var row = 
                     <tr>
                         <td><b></b></td>
-                        <td> / </td>
+                        <td></td>
                         <td><b>€</b></td>
                         <td><button class="btn-delete" onclick="fshiPorosine()">Fshi</button></td>
                     </tr>
                 ;
-                tBody.innerHTML += row;
-                tBody2.innerHTML += row;
+                if (tBody) tBody.innerHTML += row;
+                if (tBody2) tBody2.innerHTML += row;
             });
         }
 
-        async function ruajProduktin(e) {
+        function ruajProduktin(e) {
             e.preventDefault();
-            const emri = document.getElementById('p-emri').value;
-            const cmimi = parseFloat(document.getElementById('p-cmimi').value);
-            const foto = document.getElementById('p-foto').value;
-            const kategoria = document.getElementById('p-kategoria').value;
+            var emri = document.getElementById('p-emri').value;
+            var cmimi = parseFloat(document.getElementById('p-cmimi').value);
+            var foto = document.getElementById('p-foto').value;
+            var kategoria = document.getElementById('p-kategoria').value;
 
-            const meObjekt = { emri, cmimi, foto, kategoria };
-
-            if (typeof db !== 'undefined') {
-                await db.from('products').insert([{ name: emri, price: cmimi, image_url: foto, category: kategoria }]);
-            }
-
-            produkteAktiv.push(meObjekt);
+            produkteAktiv.push({ emri: emri, cmimi: cmimi, foto: foto, kategoria: kategoria });
             alert("Produkti u shtua me sukses!");
             e.target.reset();
             renditProduktet();
-            shfaqSeksionin('produkte', document.querySelectorAll('.nav-button')[1]);
+            window.shfaqSeksionin('produkte', document.querySelectorAll('.nav-button')[1]);
         }
 
-        async function fshiProduktin(id) {
+        function fshiProduktin(index) {
             if (!confirm('A jeni të sigurt për fshirjen?')) return;
-            if (typeof db !== 'undefined') {
-                await db.from('products').delete().eq('id', id);
-            }
-            produkteAktiv = produkteAktiv.filter((_, idx) => idx !== id && _.id !== id);
+            produkteAktiv.splice(index, 1);
             renditProduktet();
         }
 
-        async function fshiPorosine(id) {
+        function fshiPorosine(index) {
             if (!confirm('A jeni të sigurt për fshirjen?')) return;
-            if (typeof db !== 'undefined') {
-                await db.from('orders').delete().eq('id', id);
-            }
-            porosiAktiv = porosiAktiv.filter((_, idx) => idx !== id && _.id !== id);
+            porosiAktiv.splice(index, 1);
             renditPorosite();
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renditProduktet();
+            renditPorosite();
+        });
     </script>
 </body>
 </html>
