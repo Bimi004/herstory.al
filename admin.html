@@ -56,26 +56,6 @@
         .product-card { background: #fff; border: 1px solid #EBE3DB; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; }
         .product-card img { width: 100%; height: 140px; object-fit: cover; border-radius: 6px; margin-bottom: 8px; }
     </style>
-
-    <!-- FUNKSIONI I BUTONAVE - DEKLAROHET DIREKT NE HEAD QE TE MOS DALE REFERENCE ERROR -->
-    <script>
-        window.shfaqSeksionin = function(seksjoniId, butoni) {
-            document.querySelectorAll('.section-tab').forEach(function(el) {
-                el.classList.remove('active');
-            });
-            document.querySelectorAll('.nav-button').forEach(function(btn) {
-                btn.classList.remove('active');
-            });
-
-            var target = document.getElementById(seksjoniId);
-            if (target) {
-                target.classList.add('active');
-            }
-            if (butoni) {
-                butoni.classList.add('active');
-            }
-        };
-    </script>
 </head>
 <body>
 
@@ -87,10 +67,10 @@
     <div class="admin-container">
         <!-- SIDEBAR -->
         <aside>
-            <button type="button" class="nav-button active" onclick="window.shfaqSeksionin('dashboard', this)">📊 Dashboard</button>
-            <button type="button" class="nav-button" onclick="window.shfaqSeksionin('produkte', this)">🛍️ Produktet</button>
-            <button type="button" class="nav-button" onclick="window.shfaqSeksionin('shto-produkt', this)">➕ Shto Produkt</button>
-            <button type="button" class="nav-button" onclick="window.shfaqSeksionin('porosite', this)">📦 Porositë</button>
+            <button type="button" class="nav-button active" onclick="shfaqSeksionin('dashboard', this)">📊 Dashboard</button>
+            <button type="button" class="nav-button" onclick="shfaqSeksionin('produkte', this)">🛍️ Produktet</button>
+            <button type="button" class="nav-button" onclick="shfaqSeksionin('shto-produkt', this)">➕ Shto Produkt</button>
+            <button type="button" class="nav-button" onclick="shfaqSeksionin('porosite', this)">📦 Porositë</button>
         </aside>
 
         <!-- MAIN CONTENT -->
@@ -134,17 +114,17 @@
             <!-- 3. SHTO PRODUKT -->
             <div id="shto-produkt" class="section-tab">
                 <h2>Shto Produkt të Ri</h2>
-                <form onsubmit="ruajProduktin(event)">
-                    <label>Emri i Produktit:</label>
+                <form id="forma-produktit">
+                    <label for="p-emri">Emri i Produktit:</label>
                     <input type="text" id="p-emri" required placeholder="p.sh. Krem Hidratues">
 
-                    <label>Çmimi (€):</label>
+                    <label for="p-cmimi">Çmimi (€):</label>
                     <input type="number" step="0.01" id="p-cmimi" required placeholder="19.99">
 
-                    <label>URL e Fotos:</label>
+                    <label for="p-foto">URL e Fotos:</label>
                     <input type="url" id="p-foto" required placeholder="https://...">
 
-                    <label>Kategoria:</label>
+                    <label for="p-kategoria">Kategoria:</label>
                     <select id="p-kategoria">
                         <option>Kremra Fytyre</option>
                         <option>Parfume</option>
@@ -175,10 +155,28 @@
         </main>
     </div>
 
-    <!-- LOGJIKA E TE DHENAVE -->
     <script>
         var produkteAktiv = [];
         var porosiAktiv = [];
+
+        function shfaqSeksionin(seksjoniId, butoni) {
+            var tabs = document.querySelectorAll('.section-tab');
+            for (var i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('active');
+            }
+            var btns = document.querySelectorAll('.nav-button');
+            for (var j = 0; j < btns.length; j++) {
+                btns[j].classList.remove('active');
+            }
+
+            var target = document.getElementById(seksjoniId);
+            if (target) {
+                target.classList.add('active');
+            }
+            if (butoni) {
+                butoni.classList.add('active');
+            }
+        }
 
         function renditProduktet() {
             var grid = document.getElementById('lista-produkteve');
@@ -188,20 +186,42 @@
 
             grid.innerHTML = '';
             if (produkteAktiv.length === 0) {
-                grid.innerHTML = '<p>Nuk ka produkte. Shto një te menuja "Shto Produkt".</p>';
+                grid.innerHTML = 'Nuk ka produkte. Shto një te menuja Shto Produkt.';
                 return;
             }
 
-            produkteAktiv.forEach(function(p, index) {
-                grid.innerHTML += 
-                    <div class="product-card">
-                        <img src="">
-                        <strong></strong>
-                        <p style="color: #E5A893; font-weight: bold;">€</p>
-                        <button class="btn-delete" style="margin-top: 10px;" onclick="fshiProduktin()">Fshi Produktin</button>
-                    </div>
-                ;
-            });
+            for (var i = 0; i < produkteAktiv.length; i++) {
+                var p = produkteAktiv[i];
+                var card = document.createElement('div');
+                card.className = 'product-card';
+                
+                var img = document.createElement('img');
+                img.src = p.foto || 'https://via.placeholder.com/150';
+                
+                var title = document.createElement('strong');
+                title.innerText = p.emri;
+                
+                var cmimi = document.createElement('p');
+                cmimi.style.color = '#E5A893';
+                cmimi.style.fontWeight = 'bold';
+                cmimi.innerText = '€' + p.cmimi;
+                
+                var btn = document.createElement('button');
+                btn.className = 'btn-delete';
+                btn.style.marginTop = '10px';
+                btn.innerText = 'Fshi Produktin';
+                btn.setAttribute('data-index', i);
+                btn.onclick = function() {
+                    var idx = parseInt(this.getAttribute('data-index'));
+                    fshiProduktin(idx);
+                };
+
+                card.appendChild(img);
+                card.appendChild(title);
+                card.appendChild(cmimi);
+                card.appendChild(btn);
+                grid.appendChild(card);
+            }
         }
 
         function renditPorosite() {
@@ -214,33 +234,6 @@
 
             if (tBody) tBody.innerHTML = '';
             if (tBody2) tBody2.innerHTML = '';
-
-            porosiAktiv.forEach(function(o, index) {
-                var row = 
-                    <tr>
-                        <td><b></b></td>
-                        <td></td>
-                        <td><b>€</b></td>
-                        <td><button class="btn-delete" onclick="fshiPorosine()">Fshi</button></td>
-                    </tr>
-                ;
-                if (tBody) tBody.innerHTML += row;
-                if (tBody2) tBody2.innerHTML += row;
-            });
-        }
-
-        function ruajProduktin(e) {
-            e.preventDefault();
-            var emri = document.getElementById('p-emri').value;
-            var cmimi = parseFloat(document.getElementById('p-cmimi').value);
-            var foto = document.getElementById('p-foto').value;
-            var kategoria = document.getElementById('p-kategoria').value;
-
-            produkteAktiv.push({ emri: emri, cmimi: cmimi, foto: foto, kategoria: kategoria });
-            alert("Produkti u shtua me sukses!");
-            e.target.reset();
-            renditProduktet();
-            window.shfaqSeksionin('produkte', document.querySelectorAll('.nav-button')[1]);
         }
 
         function fshiProduktin(index) {
@@ -249,11 +242,19 @@
             renditProduktet();
         }
 
-        function fshiPorosine(index) {
-            if (!confirm('A jeni të sigurt për fshirjen?')) return;
-            porosiAktiv.splice(index, 1);
-            renditPorosite();
-        }
+        document.getElementById('forma-produktit').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var emri = document.getElementById('p-emri').value;
+            var cmimi = parseFloat(document.getElementById('p-cmimi').value);
+            var foto = document.getElementById('p-foto').value;
+            var kategoria = document.getElementById('p-kategoria').value;
+
+            produkteAktiv.push({ emri: emri, cmimi: cmimi, foto: foto, kategoria: kategoria });
+            alert("Produkti u shtua me sukses!");
+            this.reset();
+            renditProduktet();
+            shfaqSeksionin('produkte', document.querySelectorAll('.nav-button')[1]);
+        });
 
         document.addEventListener('DOMContentLoaded', function() {
             renditProduktet();
