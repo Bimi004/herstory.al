@@ -1,113 +1,85 @@
-let cart = [];
+// SKEDARI KRYESOR I KLIENTIT (HERSTORY)
 
-document.addEventListener('DOMContentLoaded', () => {
-    fetchClientProducts();
-});
+var produktetKlinet = [
+    { id: 1, emri: "Krem Hidratues Fytyre", cmimi: 18.50, kategoria: "Kremra", foto: "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=500" },
+    { id: 2, emri: "Parfum Rose Elegance", cmimi: 45.00, kategoria: "Parfume", foto: "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=500" },
+    { id: 3, emri: "Vaj Trupi Ushqyes", cmimi: 22.00, kategoria: "Kujdesi per Trupin", foto: "https://images.unsplash.com/photo-1608248597260-9f50e70b793d?w=500" }
+];
 
-// 1. Merr produktet nga Supabase dhe i shfaq te Klienti
-async function fetchClientProducts() {
-    const grid = document.getElementById('products-grid');
-    if (!grid) return;
+var shporta = [];
 
-    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px;">Duke ngarkuar produktet...</div>';
-
-    try {
-        const { data: products, error } = await db
-            .from('products')
-            .select('*')
-            .order('id', { ascending: false });
-
-        if (error) throw error;
-
-        grid.innerHTML = '';
-
-        if (!products || products.length === 0) {
-            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px;">Nuk ka produkte për të shfaqur.</div>';
-            return;
-        }
-
-        window.allProducts = products; // I ruajmë në memorie
-
-        products.forEach(product => {
-            const card = document.createElement('div');
-            card.className = "bg-white rounded-2xl overflow-hidden border border-herstory-border group hover:shadow-xl transition-all duration-300 flex flex-col h-full";
-            card.innerHTML = \
-                <div class="relative overflow-hidden aspect-square bg-gray-50">
-                    <img src="\" alt="\" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://via.placeholder.com/300'">
-                    <span class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-[10px] font-bold uppercase tracking-widest text-herstory-dark px-2.5 py-1 rounded-full border border-herstory-border">\</span>
-                </div>
-                <div class="p-5 flex flex-col flex-grow justify-between">
-                    <div>
-                        <h3 class="font-serif font-bold text-lg text-herstory-dark mb-1">\</h3>
-                        <p class="text-xs text-gray-500 line-clamp-2 mb-4">\</p>
-                    </div>
-                    <div class="flex items-center justify-between mt-auto pt-2 border-t border-herstory-light">
-                        <span class="font-bold text-lg text-herstory-dark">\ €</span>
-                        <button onclick="addToCart(\)" class="bg-herstory-dark hover:bg-herstory-rose text-white p-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center">
-                            Shto në Shportë
-                        </button>
-                    </div>
-                </div>
-            \;
-            grid.appendChild(card);
-        });
-    } catch (err) {
-        console.error('Gabim gjatë ngarkimit të produkteve:', err);
-        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: red;">Gabim gjatë ngarkimit të produkteve.</div>';
+// 1. FUNKSIONI PER FILTRIMIN E KATEGORIVE (Rregullon ReferenceError)
+window.filterCategory = function(kategoria, butoni) {
+    var btns = document.querySelectorAll('.cat-btn');
+    for (var i = 0; i < btns.length; i++) {
+        btns[i].classList.remove('active');
     }
-}
+    if (butoni) {
+        butoni.classList.add('active');
+    }
 
-// 2. Menaxhimi i Shportës
-function addToCart(productId) {
-    const product = window.allProducts ? window.allProducts.find(p => p.id === productId) : null;
-    if (!product) return;
-
-    const existing = cart.find(item => item.id === productId);
-    if (existing) {
-        existing.quantity += 1;
+    if (kategoria === 'all' || !kategoria) {
+        renditProduktetKlient(produktetKlinet);
     } else {
-        cart.push({ id: product.id, name: product.name, price: product.price, quantity: 1 });
+        var teFiltrura = produktetKlinet.filter(function(p) {
+            return p.kategoria.toLowerCase().includes(kategoria.toLowerCase());
+        });
+        renditProduktetKlient(teFiltrura);
     }
+};
 
-    updateCartBadge();
-    alert('Produkti u shtua në shportë!');
-}
+// 2. RENDITJA E PRODUKTEVE NE FAQE
+function renditProduktetKlient(lista) {
+    var kontejneri = document.getElementById('products-container') || document.getElementById('lista-produkteve-klient');
+    if (!kontejneri) return;
 
-function updateCartBadge() {
-    const badge = document.getElementById('cart-badge');
-    if (badge) {
-        const total = cart.reduce((sum, item) => sum + item.quantity, 0);
-        badge.innerText = total;
-    }
-}
+    kontejneri.innerHTML = '';
 
-// 3. Dërgimi i Porosisë (Checkout)
-async function submitOrder(clientName, clientPhone, clientAddress) {
-    if (cart.length === 0) {
-        alert('Shporta është bosh!');
+    if (lista.length === 0) {
+        kontejneri.innerHTML = '<p class="text-center col-span-full py-8 text-gray-500">Nuk u gjet asnjë produkt në këtë kategori.</p>';
         return;
     }
 
-    const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
-    try {
-        const { data, error } = await db
-            .from('orders')
-            .insert([{
-                client_name: clientName,
-                client_phone: clientPhone,
-                client_address: clientAddress,
-                items: cart,
-                total_price: totalPrice,
-                status: 'E re'
-            }]);
-
-        if (error) throw error;
-
-        alert('🎉 Porosia juaj u krye me sukses!');
-        cart = [];
-        updateCartBadge();
-    } catch (err) {
-        alert('❌ Gabim gjatë dërgimit të porosisë: ' + err.message);
+    for (var i = 0; i < lista.length; i++) {
+        var p = lista[i];
+        var div = document.createElement('div');
+        div.className = 'bg-white rounded-xl shadow-sm border border-amber-100 overflow-hidden flex flex-col justify-between p-4';
+        
+        div.innerHTML = 
+            <div>
+                <img src="" alt="" class="w-full h-48 object-cover rounded-lg mb-3">
+                <span class="text-xs font-semibold text-amber-700 bg-amber-50 px-2 py-1 rounded-full"></span>
+                <h3 class="font-bold text-gray-800 text-lg mt-2"></h3>
+            </div>
+            <div class="mt-4 flex items-center justify-between">
+                <span class="font-bold text-amber-900 text-xl">€</span>
+                <button onclick="shtoNeShporte()" class="bg-amber-800 hover:bg-amber-900 text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors">
+                    Shto në Shportë
+                </button>
+            </div>
+        ;
+        kontejneri.appendChild(div);
     }
 }
+
+// 3. SHTIMI NE SHPORTE
+window.shtoNeShporte = function(id) {
+    var produkti = produktetKlinet.find(function(p) { return p.id === id; });
+    if (produkti) {
+        shporta.push(produkti);
+        asazhoShportenUI();
+        alert('"' + produkti.emri + '" u shtua në shportë!');
+    }
+};
+
+function asazhoShportenUI() {
+    var numriShportes = document.getElementById('cart-count');
+    if (numriShportes) {
+        numriShportes.innerText = shporta.length;
+    }
+}
+
+// 4. NGARKIMI NE FILLIM
+document.addEventListener('DOMContentLoaded', function() {
+    renditProduktetKlient(produktetKlinet);
+});
