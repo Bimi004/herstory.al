@@ -5,167 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Admin - HerStory.al</title>
     <style>
-        :root {
-            --primary: #1a1a1a;
-            --accent: #d4af37;
-            --bg: #f8f9fa;
-            --white: #ffffff;
-            --border: #e2e8f0;
-            --red: #e53e3e;
-            --red-hover: #c53030;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            margin: 0;
-            padding: 0;
-            color: #333;
-        }
-
-        header {
-            background-color: var(--primary);
-            color: var(--white);
-            padding: 15px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 3px solid var(--accent);
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 24px;
-            font-weight: 600;
-        }
-
-        header h1 span {
-            color: var(--accent);
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
-        .grid-top {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 30px;
-            margin-bottom: 40px;
-        }
-
-        @media (max-width: 992px) {
-            .grid-top {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .card {
-            background: var(--white);
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-            padding: 30px;
-            border: 1px solid var(--border);
-        }
-
-        .card h2 {
-            margin-top: 0;
-            font-size: 20px;
-            color: var(--primary);
-            border-bottom: 2px solid var(--bg);
-            padding-bottom: 12px;
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #4a5568;
-            font-size: 14px;
-        }
-
-        input, textarea, select {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            background: #fafafa;
-        }
-
-        input:focus, textarea:focus, select:focus {
-            outline: none;
-            border-color: var(--accent);
-            background: var(--white);
-            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
-        }
-
-        button.btn-submit {
-            width: 100%;
-            padding: 14px;
-            background: var(--primary);
-            color: var(--white);
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-
-        button.btn-submit:hover {
-            background: #333;
-        }
-
-        .table-responsive {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-        }
-
-        th {
-            background-color: var(--bg);
-            color: #4a5568;
-            padding: 15px;
-            font-weight: 600;
-            border-bottom: 2px solid var(--border);
-        }
-
-        td {
-            padding: 15px;
-            border-bottom: 1px solid var(--border);
-            vertical-align: middle;
-        }
-
-        tr:hover {
-            background-color: #fcfcfc;
-        }
-
-        .btn-delete {
-            background: var(--red);
-            color: var(--white);
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 13px;
-        }
-
-        .btn-delete:hover {
-            background: var(--red-hover);
-        }
+        :root { --primary: #1a1a1a; --accent: #d4af37; --bg: #f8f9fa; --white: #ffffff; --border: #e2e8f0; --red: #e53e3e; --red-hover: #c53030; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); margin: 0; padding: 0; color: #333; }
+        header { background-color: var(--primary); color: var(--white); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--accent); }
+        header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+        header h1 span { color: var(--accent); }
+        .container { max-width: 1400px; margin: 40px auto; padding: 0 20px; }
+        .grid-top { display: grid; grid-template-columns: 1fr 2fr; gap: 30px; margin-bottom: 40px; }
+        @media (max-width: 992px) { .grid-top { grid-template-columns: 1fr; } }
+        .card { background: var(--white); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); padding: 30px; border: 1px solid var(--border); }
+        .card h2 { margin-top: 0; font-size: 20px; color: var(--primary); border-bottom: 2px solid var(--bg); padding-bottom: 12px; margin-bottom: 20px; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; color: #4a5568; font-size: 14px; }
+        input, textarea, select { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: #fafafa; box-sizing: border-box; }
+        button.btn-submit { width: 100%; padding: 14px; background: var(--primary); color: var(--white); border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; }
+        button.btn-submit:hover { background: #333; }
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { background-color: var(--bg); color: #4a5568; padding: 15px; font-weight: 600; border-bottom: 2px solid var(--border); }
+        td { padding: 15px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        .btn-delete { background: var(--red); color: var(--white); border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -175,7 +34,6 @@
 </header>
 
 <div class="container">
-    <!-- Pjesa 1: Produktet -->
     <div class="grid-top">
         <div class="card">
             <h2>Shto Produkt të Ri</h2>
@@ -198,7 +56,7 @@
                 <textarea id="prod-desc" rows="4" required placeholder="Shkruaj përshkrimin..."></textarea>
 
                 <label for="prod-img-url">Linku i Fotos (URL)</label>
-                <input type="url" id="prod-img-url" required placeholder="Vendos URL e imazhit të produktit...">
+                <input type="url" id="prod-img-url" required placeholder="Vendos URL e imazhit...">
 
                 <button type="submit" class="btn-submit">Shto Produktin</button>
             </form>
@@ -224,8 +82,7 @@
         </div>
     </div>
 
-    <!-- Pjesa 2: Menaxhimi i Porosive (E re!) -->
-    <div class="card" style="margin-top: 40px;">
+    <div class="card">
         <h2>Porositë e Klientëve</h2>
         <div class="table-responsive">
             <table>
@@ -245,6 +102,8 @@
     </div>
 </div>
 
+<!-- RENDITJA E SAKTE E SKRIPTEVE -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase-config.js"></script>
 <script src="js/admin.js"></script>
 
