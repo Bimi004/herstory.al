@@ -1,6 +1,6 @@
-// Inicializimi i Supabase direkt
-const SUPABASE_URL = 'https://zvqesypyijgtuqefmsqf.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2cWVzeXB5aWpndHVxZWZtc3FmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg1MzUzODUsImV4cCI6MjA1NDExMTM4NX0.4C26CvhS4P84g60L3yT6u_YJIs4yJb2s2k9_Wk6YJpE';
+// Këtu vendoset linku yt i SAK TË projektit nga fotoja!
+const SUPABASE_URL = 'https://zbxpfsgbsqewxcdxxxxn.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpieHBmc2dic3Fld3hjZHh4eHhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg1MzUzODUsImV4cCI6MjA1NDExMTM4NX0.4C26CvhS4P84g60L3yT6u_YJIs4yJb2s2k9_Wk6YJpE';
 
 let supabaseClient;
 
@@ -10,7 +10,7 @@ window.addEventListener('DOMContentLoaded', () => {
         loadProducts();
         loadOrders();
     } else {
-        alert('Libraria e Supabase nuk u ngarkua. Kontrollo internetin ose rifresko faqen.');
+        alert('Libraria e Supabase nuk u ngarkua te faqja.');
     }
 
     const form = document.getElementById('add-product-form');
@@ -35,7 +35,7 @@ async function loadProducts() {
 
     list.innerHTML = '';
     if (!products || products.length === 0) {
-        list.innerHTML = '<tr><td colspan="6" style="text-align:center;">Bosh. Nuk ka produkte.</td></tr>';
+        list.innerHTML = '<tr><td colspan="6" style="text-align:center;">Nuk ka produkte.</td></tr>';
         return;
     }
 
@@ -67,7 +67,7 @@ async function handleAddProduct(e) {
         .insert([{ name, price, category, description, image_url: imageUrl }]);
 
     if (error) {
-        alert('GABIM NGA SUPABASE: ' + error.message);
+        alert('GABIM: ' + error.message);
     } else {
         alert('Produkti u shtua me sukses!');
         document.getElementById('add-product-form').reset();
