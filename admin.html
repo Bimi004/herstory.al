@@ -4,430 +4,292 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HerStory Admin Panel</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        herstory: {
-                            cream: '#FAF6F0',
-                            rose: '#E5A893',
-                            roseHover: '#D2917C',
-                            dark: '#241E1D',
-                            light: '#F5EFEB',
-                            sage: '#9CA998',
-                            success: '#4E7D64',
-                            border: '#EBE3DB'
-                        }
-                    },
-                    fontFamily: {
-                        playfair: ['Playfair Display', 'serif'],
-                        inter: ['Inter', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #FAF6F0; }
-        h1, h2, h3, .font-serif { font-family: 'Playfair Display', serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background-color: #FAF6F0; color: #241E1D; display: flex; flex-direction: column; min-height: 100vh; }
+        
+        /* HEADER */
+        header { background: #fff; padding: 15px 20px; border-bottom: 1px solid #EBE3DB; display: flex; justify-content: space-between; items-center; }
+        .logo-title { font-weight: bold; font-size: 18px; color: #241E1D; }
+        
+        /* LAYOUT */
+        .admin-container { display: flex; flex: 1; flex-direction: row; }
+        
+        /* SIDEBAR / NAVIGATION */
+        aside { width: 240px; background: #fff; border-right: 1px solid #EBE3DB; padding: 20px 10px; }
+        .nav-button { 
+            display: block; 
+            width: 100%; 
+            padding: 12px 15px; 
+            margin-bottom: 8px; 
+            background: #F5EFEB; 
+            border: 1px solid #EBE3DB; 
+            border-radius: 8px; 
+            text-align: left; 
+            font-weight: bold; 
+            color: #241E1D; 
+            cursor: pointer; 
+            font-size: 14px;
+        }
+        .nav-button:hover { background: #E5A893; color: #fff; }
+        .nav-button.active { background: #E5A893; color: #fff; border-color: #D2917C; }
+
+        /* MAIN CONTENT AREA */
+        main { flex: 1; padding: 25px; }
+        .section-tab { display: none; }
+        .section-tab.active { display: block; }
+
+        /* CARDS / STATS */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
+        .card { background: #fff; border: 1px solid #EBE3DB; border-radius: 10px; padding: 15px; }
+        .card-title { font-size: 12px; color: #666; font-weight: bold; }
+        .card-value { font-size: 22px; font-weight: bold; margin-top: 5px; color: #241E1D; }
+
+        /* FORMS & TABLES */
+        form { background: #fff; border: 1px solid #EBE3DB; padding: 20px; border-radius: 10px; max-width: 500px; display: flex; flex-direction: column; gap: 12px; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+        .btn-submit { background: #E5A893; color: white; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .btn-submit:hover { background: #D2917C; }
+        
+        table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #EBE3DB; margin-top: 15px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #EBE3DB; font-size: 13px; }
+        th { background: #F5EFEB; font-size: 11px; text-transform: uppercase; }
+        
+        .btn-delete { background: #ff4d4d; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .btn-delete:hover { background: #cc0000; }
+        
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
+        .product-card { background: #fff; border: 1px solid #EBE3DB; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; justify-between; }
+        .product-card img { width: 100%; height: 140px; object-fit: cover; border-radius: 6px; margin-bottom: 8px; }
     </style>
 </head>
-<body class="text-herstory-dark min-h-screen flex flex-col pb-16 md:pb-0">
+<body>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <!-- HEADER -->
-    <header class="bg-white border-b border-herstory-border px-6 py-4 flex justify-between items-center sticky top-0 z-40">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-herstory-rose flex items-center justify-center text-white text-xl shadow-sm">
-                <i class="fa-solid fa-spa"></i>
-            </div>
-            <div>
-                <h1 class="text-xl font-bold tracking-tight text-herstory-dark">HerStory Admin</h1>
-                <p class="text-xs text-herstory-dark/60">Paneli i kontrollit të dyqanit të kremrave &amp; parfumeve</p>
-            </div>
-        </div>
-        
-        <div id="connection-badge" class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span id="connection-text">Sistemi me Butona Aktiv</span>
-        </div>
+    <header>
+        <div class="logo-title">🌸 HerStory Admin Panel</div>
+        <div><small style="color: green; font-weight: bold;">● Paneli i Gatshëm</small></div>
     </header>
 
-    <div class="flex flex-1 flex-col md:flex-row">
-        
-        <!-- SIDEBAR NAVIGATION -->
-        <aside class="flex flex-row md:flex-col w-full md:w-64 bg-white border-b md:border-b-0 md:border-r border-herstory-border p-4 md:p-6 gap-2 md:gap-6 shrink-0">
-            <div class="flex flex-col gap-1 w-full">
-                <span class="hidden md:block text-[10px] font-bold text-herstory-dark/50 uppercase tracking-wider px-3">Menaxhimi</span>
-                <nav class="flex flex-row md:flex-col gap-1 mt-0 md:mt-2 w-full justify-around md:justify-start">
-                    <button type="button" onclick="switchTab('dashboard')" id="nav-dashboard" class="tab-btn flex-1 md:flex-none flex items-center justify-center md:justify-start gap-2 md:gap-3 px-3 py-2.5 rounded-lg text-xs md:text-sm font-medium transition-all bg-herstory-light text-herstory-rose cursor-pointer">
-                        <i class="fa-solid fa-chart-simple w-4 md:w-5"></i> <span class="hidden sm:inline">Dashboard</span>
-                    </button>
-                    <button type="button" onclick="switchTab('products')" id="nav-products" class="tab-btn flex-1 md:flex-none flex items-center justify-center md:justify-start gap-2 md:gap-3 px-3 py-2.5 rounded-lg text-xs md:text-sm font-medium transition-all text-herstory-dark/70 hover:bg-herstory-light cursor-pointer">
-                        <i class="fa-solid fa-boxes-stacked w-4 md:w-5"></i> <span class="hidden sm:inline">Produktet</span>
-                    </button>
-                    <button type="button" onclick="switchTab('add-product')" id="nav-add-product" class="tab-btn flex-1 md:flex-none flex items-center justify-center md:justify-start gap-2 md:gap-3 px-3 py-2.5 rounded-lg text-xs md:text-sm font-medium transition-all text-herstory-dark/70 hover:bg-herstory-light cursor-pointer">
-                        <i class="fa-solid fa-circle-plus w-4 md:w-5"></i> <span class="hidden sm:inline">Shto Produkt</span>
-                    </button>
-                    <button type="button" onclick="switchTab('orders')" id="nav-orders" class="tab-btn flex-1 md:flex-none flex items-center justify-center md:justify-start gap-2 md:gap-3 px-3 py-2.5 rounded-lg text-xs md:text-sm font-medium transition-all text-herstory-dark/70 hover:bg-herstory-light cursor-pointer">
-                        <i class="fa-solid fa-receipt w-4 md:w-5"></i> <span class="hidden sm:inline">Porositë</span>
-                        <span id="orders-count-badge" class="ml-auto bg-herstory-rose text-white text-[10px] font-bold px-2 py-0.5 rounded-full hidden md:inline-block">0</span>
-                    </button>
-                </nav>
-            </div>
+    <div class="admin-container">
+        <!-- SIDEBAR -->
+        <aside>
+            <button class="nav-button active" onclick="shfaqSeksionin('dashboard', this)">📊 Dashboard</button>
+            <button class="nav-button" onclick="shfaqSeksionin('produkte', this)">🛍️ Produktet</button>
+            <button class="nav-button" onclick="shfaqSeksionin('shto-produkt', this)">➕ Shto Produkt</button>
+            <button class="nav-button" onclick="shfaqSeksionin('porosite', this)">📦 Porositë</button>
         </aside>
 
-        <!-- MAIN CONTENT CONTAINER -->
-        <main class="flex-1 p-4 md:p-8 overflow-y-auto max-w-7xl mx-auto w-full">
-            
-            <!-- TAB 1: DASHBOARD -->
-            <section id="tab-dashboard" class="tab-content flex flex-col gap-6">
-                <div class="flex flex-col gap-1">
-                    <h2 class="text-2xl md:text-3xl font-bold text-herstory-dark">Paneli i Kontrollit HerStory</h2>
-                    <p class="text-xs md:text-sm text-herstory-dark/60">Përmbledhja e xhiros dhe porosive të produkteve kozmetike.</p>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="bg-white p-6 rounded-2xl border border-herstory-border shadow-sm flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-xl bg-amber-50 text-herstory-rose flex items-center justify-center text-xl"><i class="fa-solid fa-truck-ramp-box"></i></div>
-                        <div>
-                            <span class="text-xs text-herstory-dark/60 block font-medium">Porosi të Reja</span>
-                            <span id="stat-new-orders" class="text-2xl font-bold text-herstory-dark">0</span>
-                        </div>
+        <!-- MAIN CONTENT -->
+        <main>
+            <!-- 1. DASHBOARD -->
+            <div id="dashboard" class="section-tab active">
+                <h2>Paneli i Kontrollit</h2>
+                <div class="stats-grid">
+                    <div class="card">
+                        <div class="card-title">POROSI TË REJA</div>
+                        <div class="card-value" id="stat-porosi">0</div>
                     </div>
-                    <div class="bg-white p-6 rounded-2xl border border-herstory-border shadow-sm flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-xl"><i class="fa-solid fa-coins"></i></div>
-                        <div>
-                            <span class="text-xs text-herstory-dark/60 block font-medium">Xhiroja e Parashikuar</span>
-                            <span id="stat-revenue" class="text-2xl font-bold text-herstory-dark">€0.00</span>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl border border-herstory-border shadow-sm flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl"><i class="fa-solid fa-pump-soap"></i></div>
-                        <div>
-                            <span class="text-xs text-herstory-dark/60 block font-medium">Gjithsej Produkte</span>
-                            <span id="stat-total-products" class="text-2xl font-bold text-herstory-dark">0</span>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl border border-herstory-border shadow-sm flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl"><i class="fa-solid fa-check-double"></i></div>
-                        <div>
-                            <span class="text-xs text-herstory-dark/60 block font-medium">Porosi të Dorëzuara</span>
-                            <span id="stat-completed-orders" class="text-2xl font-bold text-herstory-dark">0</span>
-                        </div>
+                    <div class="card">
+                        <div class="card-title">PRODUKTE TOTAL</div>
+                        <div class="card-value" id="stat-produkte">0</div>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl border border-herstory-border shadow-sm overflow-hidden mt-2">
-                    <div class="p-5 border-b border-herstory-border flex justify-between items-center">
-                        <h3 class="text-lg font-bold text-herstory-dark">Porositë e Fundit</h3>
-                        <button type="button" onclick="switchTab('orders')" class="text-xs font-semibold text-herstory-rose hover:underline cursor-pointer">Shiko të gjitha</button>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-herstory-cream text-[11px] font-bold tracking-wider text-herstory-dark/60 uppercase border-b border-herstory-border">
-                                    <th class="py-3.5 px-5">Klienti</th>
-                                    <th class="py-3.5 px-5">Telefoni / Adresa</th>
-                                    <th class="py-3.5 px-5">Produktet</th>
-                                    <th class="py-3.5 px-5">Totali</th>
-                                    <th class="py-3.5 px-5">Statusi</th>
-                                </tr>
-                            </thead>
-                            <tbody id="dashboard-orders-table" class="divide-y divide-herstory-border text-sm">
-                                <tr>
-                                    <td colspan="5" class="text-center py-6 text-gray-400 text-xs">Duke ngarkuar porositë...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
+                <h3 style="margin-top: 25px;">Porositë e Fundit</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Klienti</th>
+                            <th>Telefoni / Adresa</th>
+                            <th>Totali</th>
+                            <th>Veprime</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-porosive-dashboard">
+                        <tr><td colspan="4">Nuk ka porosi aktualisht.</td></tr>
+                    </tbody>
+                </table>
+            </div>
 
-            <!-- TAB 2: KATALOGU -->
-            <section id="tab-products" class="tab-content hidden flex flex-col gap-6">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h2 class="text-2xl md:text-3xl font-bold text-herstory-dark">Katalogu i Produkteve</h2>
-                        <p class="text-xs text-herstory-dark/60">Lista e produkteve aktive që shfaqen në dyqan.</p>
-                    </div>
-                    <button type="button" onclick="switchTab('add-product')" class="bg-herstory-rose hover:bg-herstory-roseHover text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-sm flex items-center gap-2 cursor-pointer">
-                        <i class="fa-solid fa-plus"></i> Shto Produkt
-                    </button>
+            <!-- 2. PRODUKTET -->
+            <div id="produkte" class="section-tab">
+                <h2>Katalogu i Produkteve</h2>
+                <div class="products-grid" id="lista-produkteve">
+                    <!-- Produktet shfaqen këtu -->
                 </div>
-                <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
-            </section>
+            </div>
 
-            <!-- TAB 3: SHTO PRODUKT -->
-            <section id="tab-add-product" class="tab-content hidden flex flex-col gap-6 max-w-2xl mx-auto w-full">
-                <div>
-                    <h2 class="text-2xl md:text-3xl font-bold text-herstory-dark">Shto Produkt Të Ri</h2>
-                    <p class="text-xs text-herstory-dark/60">Plotëso të dhënat për ta publikuar produktin në dyqanin tënd.</p>
-                </div>
-                <form id="add-product-form" onsubmit="handleProductSubmit(event)" class="bg-white p-6 rounded-2xl border border-herstory-border shadow-sm flex flex-col gap-4">
-                    <div>
-                        <label class="text-xs font-bold uppercase text-herstory-dark/70">URL e Fotos</label>
-                        <input type="url" id="p-image-url" required placeholder="https://..." class="w-full border border-herstory-border p-3 rounded-xl mt-1 text-sm focus:outline-none focus:border-herstory-rose">
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold uppercase text-herstory-dark/70">Emri i Artikullit</label>
-                        <input type="text" id="p-name" required placeholder="p.sh. Serum Hidratues" class="w-full border border-herstory-border p-3 rounded-xl mt-1 text-sm focus:outline-none focus:border-herstory-rose">
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="text-xs font-bold uppercase text-herstory-dark/70">Çmimi (€)</label>
-                            <input type="number" step="0.01" id="p-price" required placeholder="24.90" class="w-full border border-herstory-border p-3 rounded-xl mt-1 text-sm focus:outline-none focus:border-herstory-rose">
-                        </div>
-                        <div>
-                            <label class="text-xs font-bold uppercase text-herstory-dark/70">Kategoria</label>
-                            <select id="p-category" class="w-full border border-herstory-border p-3 rounded-xl mt-1 text-sm focus:outline-none focus:border-herstory-rose">
-                                <option value="Kremra Fytyre">Kremra Fytyre</option>
-                                <option value="Hidratues">Hidratues</option>
-                                <option value="Kujdesi për Trupin">Kujdesi për Trupin</option>
-                                <option value="Parfume">Parfume</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold uppercase text-herstory-dark/70">Përshkrimi</label>
-                        <textarea id="p-desc" rows="3" placeholder="Përshkrimi i produktit..." class="w-full border border-herstory-border p-3 rounded-xl mt-1 text-sm focus:outline-none focus:border-herstory-rose"></textarea>
-                    </div>
-                    <button type="submit" class="bg-herstory-rose text-white py-3.5 rounded-xl font-bold hover:bg-herstory-roseHover transition-all shadow-md mt-2 cursor-pointer">Publiko Produktin Live</button>
+            <!-- 3. SHTO PRODUKT -->
+            <div id="shto-produkt" class="section-tab">
+                <h2>Shto Produkt të Ri</h2>
+                <form onsubmit="ruajProduktin(event)">
+                    <label>Emri i Produktit:</label>
+                    <input type="text" id="p-emri" required placeholder="p.sh. Krem Hidratues">
+
+                    <label>Çmimi (€):</label>
+                    <input type="number" step="0.01" id="p-cmimi" required placeholder="19.99">
+
+                    <label>URL e Fotos:</label>
+                    <input type="url" id="p-foto" required placeholder="https://...">
+
+                    <label>Kategoria:</label>
+                    <select id="p-kategoria">
+                        <option>Kremra Fytyre</option>
+                        <option>Parfume</option>
+                        <option>Kujdesi për Trupin</option>
+                    </select>
+
+                    <button type="submit" class="btn-submit">Publiko Produktin</button>
                 </form>
-            </section>
+            </div>
 
-            <!-- TAB 4: POROSITË -->
-            <section id="tab-orders" class="tab-content hidden flex flex-col gap-6">
-                <div>
-                    <h2 class="text-2xl md:text-3xl font-bold text-herstory-dark">Porositë e Klientëve</h2>
-                    <p class="text-xs text-herstory-dark/60">Menaxho dhe kontrollo porositë e marra online.</p>
-                </div>
-                <div class="flex flex-col gap-4" id="orders-list-container"></div>
-            </section>
-
+            <!-- 4. POROSITË -->
+            <div id="porosite" class="section-tab">
+                <h2>Të gjitha Porositë</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Klienti</th>
+                            <th>Telefoni</th>
+                            <th>Adresa</th>
+                            <th>Totali</th>
+                            <th>Option</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-porosive-plote">
+                        <tr><td colspan="5">Nuk ka porosi të regjistruara.</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </main>
     </div>
 
-    <script>
-        // SCRIPT I SIGURT PËR BUTONAT DHE SUPABASE
-        let db = null;
-        let productsList = [];
-        let ordersList = [];
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
 
-        // Inicializo Supabase vetëm nëse egzistojnë të dhënat te window.supabaseConfig ose fusha globale
-        function initSupabase() {
-            try {
-                if (typeof supabase !== 'undefined') {
-                    const url = window.SUPABASE_URL || 'https://xyz.supabase.co'; 
-                    const key = window.SUPABASE_KEY || 'eyJhbGciOi...';
-                    db = supabase.createClient(url, key);
-                }
-            } catch(e) {
-                console.warn('Supabase initialization fallback active');
-            }
+    <script>
+        // TE DHENAT LOKALE NESE SUPABASE BLLOKOHET
+        let produkteAktiv = [];
+        let porosiAktiv = [];
+
+        // FUNKSIONI KRYESOR I BUTONAVE
+        function shfaqSeksionin(seksjoniId, butoni) {
+            // Fshih te gjitha seksionet
+            document.querySelectorAll('.section-tab').forEach(el => el.classList.remove('active'));
+            
+            // Hiq ngjyren nga butonat
+            document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
+
+            // Shfaq seksionin qe u klikua
+            document.getElementById(seksjoniId).classList.add('active');
+            
+            // Bej butonin aktiv
+            butoni.classList.add('active');
         }
 
-        // Funksioni kryesor i kalimit midis tab-eve (I GARANTUAR SE FUNKSIONON)
-        window.switchTab = function(tabId) {
-            console.log("Duke ndryshuar faqen te:", tabId);
-            
-            // Fshih të gjitha seksionet
-            document.querySelectorAll('.tab-content').forEach(el => {
-                el.classList.add('hidden');
-            });
-
-            // Hiq stilin aktiv nga të gjithë butonat
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('bg-herstory-light', 'text-herstory-rose');
-                btn.classList.add('text-herstory-dark/70');
-            });
-
-            // Shfaq seksionin e zgjedhur
-            const targetSection = document.getElementById(	ab-);
-            if (targetSection) {
-                targetSection.classList.remove('hidden');
-            }
-
-            // Aktivizo butonin e zgjedhur
-            const targetBtn = document.getElementById(
-av-);
-            if (targetBtn) {
-                targetBtn.classList.add('bg-herstory-light', 'text-herstory-rose');
-                targetBtn.classList.remove('text-herstory-dark/70');
-            }
-        };
-
-        document.addEventListener('DOMContentLoaded', () => {
-            initSupabase();
-            loadAllData();
+        document.addEventListener('DOMContentLoaded', async () => {
+            await ngarkoTeDhenat();
         });
 
-        async function loadAllData() {
-            if (db) {
+        async function ngarkoTeDhenat() {
+            if (typeof db !== 'undefined') {
                 try {
-                    const { data: pData } = await db.from('products').select('*').order('id', { ascending: false });
-                    if (pData) productsList = pData;
+                    const { data: p } = await db.from('products').select('*');
+                    if (p) produkteAktiv = p;
 
-                    const { data: oData } = await db.from('orders').select('*').order('id', { ascending: false });
-                    if (oData) ordersList = oData;
+                    const { data: o } = await db.from('orders').select('*');
+                    if (o) porosiAktiv = o;
                 } catch(e) {
-                    console.log("Duke përdorur të dhënat me këtë pamje...");
+                    console.log("Supabase error, duke perdorur ruajtje lokale.");
                 }
             }
 
-            renderProducts();
-            renderOrders();
-            renderDashboard();
+            renditProduktet();
+            renditPorosite();
         }
 
-        function renderDashboard() {
-            document.getElementById('stat-total-products').innerText = productsList.length;
-            document.getElementById('stat-new-orders').innerText = ordersList.filter(o => !o.status || o.status === 'E re').length;
-            document.getElementById('stat-completed-orders').innerText = ordersList.filter(o => o.status === 'Dorëzuar').length;
-            document.getElementById('orders-count-badge').innerText = ordersList.length;
-
-            const rev = ordersList.reduce((acc, curr) => acc + (parseFloat(curr.total_price) || 0), 0);
-            document.getElementById('stat-revenue').innerText = '€' + rev.toFixed(2);
-
-            const tbody = document.getElementById('dashboard-orders-table');
-            tbody.innerHTML = '';
-
-            if (ordersList.length === 0) {
-                tbody.innerHTML = <tr><td colspan="5" class="text-center py-6 text-gray-400 text-xs">Nuk ka asnjë porosi ende.</td></tr>;
-                return;
-            }
-
-            ordersList.slice(0, 5).forEach(o => {
-                tbody.innerHTML += 
-                    <tr class="hover:bg-herstory-cream/40 transition-all">
-                        <td class="py-3.5 px-5 font-bold"></td>
-                        <td class="py-3.5 px-5 text-xs text-gray-600"><br><span class="text-[11px] text-gray-400"></span></td>
-                        <td class="py-3.5 px-5 text-xs max-w-xs truncate"></td>
-                        <td class="py-3.5 px-5 font-bold text-herstory-dark">€</td>
-                        <td class="py-3.5 px-5"><span class="bg-amber-100 text-amber-800 text-[11px] px-2.5 py-1 rounded-full font-bold"></span></td>
-                    </tr>
-                ;
-            });
-        }
-
-        function renderProducts() {
-            const grid = document.getElementById('products-grid');
+        function renditProduktet() {
+            const grid = document.getElementById('lista-produkteve');
+            document.getElementById('stat-produkte').innerText = produkteAktiv.length;
             grid.innerHTML = '';
 
-            if (productsList.length === 0) {
-                grid.innerHTML = <div class="col-span-full text-center py-10 text-gray-400 text-sm">Nuk ka produkte në katalog. Shto produktin tënd të parë te butoni "+ Shto Produkt"!</div>;
+            if (produkteAktiv.length === 0) {
+                grid.innerHTML = '<p>Nuk ka produkte. Shto një te menuja "Shto Produkt".</p>';
                 return;
             }
 
-            productsList.forEach(p => {
+            produkteAktiv.forEach((p, index) => {
                 grid.innerHTML += 
-                    <div class="bg-white border border-herstory-border rounded-2xl overflow-hidden shadow-sm p-4 flex flex-col justify-between hover:shadow-md transition-all">
-                        <div>
-                            <img src="" class="h-48 w-full object-cover rounded-xl mb-3 bg-herstory-cream">
-                            <span class="text-[10px] font-bold text-herstory-rose uppercase tracking-wider"></span>
-                            <h3 class="font-bold text-base text-herstory-dark mt-1 line-clamp-1"></h3>
-                            <p class="text-xs text-gray-500 mt-1 line-clamp-2"></p>
-                        </div>
-                        <div class="flex justify-between items-center mt-4 pt-3 border-t border-herstory-border">
-                            <span class="font-bold text-lg text-herstory-dark">€</span>
-                            <button type="button" onclick="deleteProduct()" class="bg-red-50 text-red-600 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-red-100 transition-all flex items-center gap-1 cursor-pointer">
-                                <i class="fa-solid fa-trash"></i> Fshi
-                            </button>
-                        </div>
+                    <div class="product-card">
+                        <img src="">
+                        <strong></strong>
+                        <p style="color: #E5A893; font-weight: bold;">€</p>
+                        <button class="btn-delete" style="margin-top: 10px;" onclick="fshiProduktin()">Fshi Produktin</button>
                     </div>
                 ;
             });
         }
 
-        function renderOrders() {
-            const container = document.getElementById('orders-list-container');
-            container.innerHTML = '';
+        function renditPorosite() {
+            const tBody = document.getElementById('tabela-porosive-dashboard');
+            const tBody2 = document.getElementById('tabela-porosive-plote');
+            document.getElementById('stat-porosi').innerText = porosiAktiv.length;
 
-            if (ordersList.length === 0) {
-                container.innerHTML = <div class="bg-white p-8 text-center rounded-2xl border border-herstory-border text-gray-400 text-sm">Nuk ka asnjë porosi aktuale.</div>;
-                return;
-            }
+            if (porosiAktiv.length === 0) return;
 
-            ordersList.forEach(o => {
-                container.innerHTML += 
-                    <div class="bg-white border border-herstory-border p-5 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm">
-                        <div class="flex flex-col gap-1">
-                            <div class="flex items-center gap-2">
-                                <h4 class="font-bold text-base text-herstory-dark"></h4>
-                                <span class="bg-amber-100 text-amber-800 text-[10px] px-2 py-0.5 rounded-full font-bold"></span>
-                            </div>
-                            <p class="text-xs text-gray-600"><i class="fa-solid fa-phone text-xs mr-1"></i>  | <i class="fa-solid fa-location-dot text-xs mr-1"></i> </p>
-                        </div>
-                        <div class="flex items-center gap-6 w-full md:w-auto justify-between border-t md:border-t-0 pt-3 md:pt-0 border-herstory-border">
-                            <span class="font-bold text-xl text-herstory-dark">€</span>
-                            <button type="button" onclick="deleteOrder()" class="bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer">
-                                <i class="fa-solid fa-trash"></i> Fshi Porosinë
-                            </button>
-                        </div>
-                    </div>
+            tBody.innerHTML = '';
+            tBody2.innerHTML = '';
+
+            porosiAktiv.forEach((o, index) => {
+                const row = 
+                    <tr>
+                        <td><b></b></td>
+                        <td> / </td>
+                        <td><b>€</b></td>
+                        <td><button class="btn-delete" onclick="fshiPorosine()">Fshi</button></td>
+                    </tr>
                 ;
+                tBody.innerHTML += row;
+                tBody2.innerHTML += row;
             });
         }
 
-        async function handleProductSubmit(e) {
+        async function ruajProduktin(e) {
             e.preventDefault();
-            const newProd = {
-                id: Date.now(),
-                name: document.getElementById('p-name').value,
-                price: parseFloat(document.getElementById('p-price').value),
-                category: document.getElementById('p-category').value,
-                description: document.getElementById('p-desc').value,
-                image_url: document.getElementById('p-image-url').value
-            };
+            const emri = document.getElementById('p-emri').value;
+            const cmimi = parseFloat(document.getElementById('p-cmimi').value);
+            const foto = document.getElementById('p-foto').value;
+            const kategoria = document.getElementById('p-kategoria').value;
 
-            if (db) {
-                const { error } = await db.from('products').insert([{
-                    name: newProd.name,
-                    price: newProd.price,
-                    category: newProd.category,
-                    description: newProd.description,
-                    image_url: newProd.image_url
-                }]);
-                if (error) {
-                    alert('Gabim Supabase: ' + error.message);
-                    return;
-                }
+            const meObjekt = { emri, cmimi, foto, kategoria };
+
+            if (typeof db !== 'undefined') {
+                await db.from('products').insert([{ name: emri, price: cmimi, image_url: foto, category: kategoria }]);
             }
 
-            productsList.unshift(newProd);
-            alert('Produkti u publikua me sukses!');
+            produkteAktiv.push(meObjekt);
+            alert("Produkti u shtua me sukses!");
             e.target.reset();
-            renderProducts();
-            renderDashboard();
-            switchTab('products');
+            renditProduktet();
+            shfaqSeksionin('produkte', document.querySelectorAll('.nav-button')[1]);
         }
 
-        async function deleteProduct(id) {
-            if (!confirm('A jeni të sigurt që dëshironi ta fshini këtë produkt?')) return;
-            if (db) {
+        async function fshiProduktin(id) {
+            if (!confirm('A jeni të sigurt për fshirjen?')) return;
+            if (typeof db !== 'undefined') {
                 await db.from('products').delete().eq('id', id);
             }
-            productsList = productsList.filter(p => p.id !== id);
-            renderProducts();
-            renderDashboard();
+            produkteAktiv = produkteAktiv.filter((_, idx) => idx !== id && _.id !== id);
+            renditProduktet();
         }
 
-        async function deleteOrder(id) {
-            if (!confirm('A jeni të sigurt që dëshironi ta fshini këtë porosi?')) return;
-            if (db) {
+        async function fshiPorosine(id) {
+            if (!confirm('A jeni të sigurt për fshirjen?')) return;
+            if (typeof db !== 'undefined') {
                 await db.from('orders').delete().eq('id', id);
             }
-            ordersList = ordersList.filter(o => o.id !== id);
-            renderOrders();
-            renderDashboard();
+            porosiAktiv = porosiAktiv.filter((_, idx) => idx !== id && _.id !== id);
+            renditPorosite();
         }
     </script>
 </body>
