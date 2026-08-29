@@ -1,0 +1,412 @@
+<!doctype html>
+
+<html lang="sq">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>
+        herstory.al
+    </title>
+
+    <meta
+        name="description"
+        content="Moda dhe stili yt, n&euml; nj&euml; vend."
+    >
+
+    <link
+        rel="stylesheet"
+        href="/styles.css?v=4"
+    >
+
+</head>
+
+
+<body>
+
+
+<header class="site-header">
+
+    <a
+        href="/"
+        class="logo"
+    >
+        herstory.al
+    </a>
+
+
+    <div class="header-actions">
+
+        <button
+            id="searchButton"
+            class="header-link"
+        >
+            K&euml;rko
+        </button>
+
+        <button
+            id="cartButton"
+            class="cart-button"
+        >
+            Shporta
+            <span id="cartCount">
+                0
+            </span>
+        </button>
+
+    </div>
+
+</header>
+
+
+<section class="hero">
+
+    <div class="hero-copy">
+
+        <span class="eyebrow">
+            HER STORY. HER STYLE.
+        </span>
+
+        <h1>
+            Stil q&euml; tregon
+            historin&euml; t&euml;nde.
+        </h1>
+
+        <p>
+            Zbulo koleksionin dhe gjej
+            produktin q&euml; t&euml; p&euml;rshtatet.
+        </p>
+
+        <a
+            href="#shop"
+            class="hero-button"
+        >
+            Shiko koleksionin
+        </a>
+
+    </div>
+
+</section>
+
+
+<main
+    id="shop"
+    class="shop"
+>
+
+    <div class="shop-heading">
+
+        <div>
+
+            <span class="eyebrow">
+                KOLEKSIONI
+            </span>
+
+            <h2>
+                Produktet
+            </h2>
+
+        </div>
+
+
+        <div class="search-wrap">
+
+            <input
+                id="searchInput"
+                type="search"
+                placeholder="K&euml;rko produkt..."
+            >
+
+        </div>
+
+    </div>
+
+
+    <section class="category-section">
+
+        <div class="category-heading">
+
+            <div>
+
+                <h3>
+                    Kategorit&euml;
+                </h3>
+
+                <p>
+                    Zgjidh kategorin&euml;
+                    q&euml; t&euml; intereson.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="categoryFilters"
+            class="category-filters"
+        ></div>
+
+    </section>
+
+
+    <div
+        id="productsLoading"
+        class="state-box"
+    >
+        Duke ngarkuar produktet...
+    </div>
+
+
+    <div
+        id="productsGrid"
+        class="products-grid"
+    ></div>
+
+</main>
+
+
+<div
+    id="cartOverlay"
+    class="overlay"
+></div>
+
+
+<aside
+    id="cartDrawer"
+    class="cart-drawer"
+>
+
+    <div class="drawer-header">
+
+        <h2>
+            Shporta
+        </h2>
+
+        <button
+            id="closeCartButton"
+            class="round-button"
+            aria-label="Mbyll"
+        >
+            &times;
+        </button>
+
+    </div>
+
+
+    <div
+        id="cartItems"
+        class="cart-items"
+    ></div>
+
+
+    <div class="cart-footer">
+
+        <div class="cart-total">
+
+            <span>
+                Totali
+            </span>
+
+            <strong
+                id="cartTotal"
+            ></strong>
+
+        </div>
+
+
+        <button
+            id="checkoutButton"
+            class="primary-button"
+        >
+            Vazhdo me porosin&euml;
+        </button>
+
+    </div>
+
+</aside>
+
+
+<div
+    id="checkoutModal"
+    class="checkout-modal"
+>
+
+    <div class="checkout-card">
+
+        <div class="drawer-header">
+
+            <div>
+
+                <span class="eyebrow">
+                    POROSIA
+                </span>
+
+                <h2>
+                    T&euml; dh&euml;nat e d&euml;rges&euml;s
+                </h2>
+
+            </div>
+
+
+            <button
+                id="closeCheckoutButton"
+                class="round-button"
+                type="button"
+            >
+                &times;
+            </button>
+
+        </div>
+
+
+        <form
+            id="checkoutForm"
+            class="checkout-form"
+        >
+
+            <div class="checkout-grid">
+
+                <label>
+
+                    Emri dhe mbiemri
+
+                    <input
+                        name="customer_name"
+                        required
+                    >
+
+                </label>
+
+
+                <label>
+
+                    Telefoni
+
+                    <input
+                        name="customer_phone"
+                        required
+                    >
+
+                </label>
+
+
+                <label>
+
+                    Email
+
+                    <input
+                        name="customer_email"
+                        type="email"
+                    >
+
+                </label>
+
+
+                <label>
+
+                    Qyteti
+
+                    <input
+                        name="shipping_city"
+                        required
+                    >
+
+                </label>
+
+
+                <label class="wide">
+
+                    Adresa
+
+                    <input
+                        name="shipping_address"
+                        required
+                    >
+
+                </label>
+
+
+                <label>
+
+                    Kodi postar
+
+                    <input
+                        name="shipping_postal_code"
+                    >
+
+                </label>
+
+
+                <label class="wide">
+
+                    Sh&euml;nim p&euml;r porosin&euml;
+
+                    <textarea
+                        name="customer_notes"
+                        rows="3"
+                    ></textarea>
+
+                </label>
+
+            </div>
+
+
+            <div class="payment-box">
+
+                <strong>
+                    M&euml;nyra e pages&euml;s
+                </strong>
+
+                <span>
+                    Pages&euml; n&euml; dor&euml;zim
+                </span>
+
+            </div>
+
+
+            <button
+                id="submitOrderButton"
+                class="primary-button"
+                type="submit"
+            >
+                Konfirmo porosin&euml;
+            </button>
+
+
+            <p
+                id="checkoutMessage"
+                class="form-message"
+            ></p>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<footer>
+
+    <strong>
+        herstory.al
+    </strong>
+
+    <span>
+        &copy; 2026 herstory.al
+    </span>
+
+</footer>
+
+
+<script src="/config.js?v=4"></script>
+<script src="/app.js?v=4"></script>
+
+</body>
+</html>

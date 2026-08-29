@@ -1,0 +1,726 @@
+<!doctype html>
+
+<html lang="sq">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>
+        herstory.al - Admin
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="/admin/admin.css?v=4"
+    >
+
+</head>
+
+
+<body>
+
+
+<section
+    id="loginScreen"
+    class="login-screen"
+>
+
+    <form
+        id="loginForm"
+        class="login-card"
+    >
+
+        <div class="admin-logo">
+            herstory.al
+        </div>
+
+        <h1>
+            Paneli i administrimit
+        </h1>
+
+        <p>
+            Hyr p&euml;r t&euml; menaxhuar dyqanin.
+        </p>
+
+
+        <label>
+
+            Email
+
+            <input
+                name="email"
+                type="email"
+                autocomplete="username"
+                required
+            >
+
+        </label>
+
+
+        <label>
+
+            Fjal&euml;kalimi
+
+            <input
+                name="password"
+                type="password"
+                autocomplete="current-password"
+                required
+            >
+
+        </label>
+
+
+        <button
+            type="submit"
+            class="admin-primary full"
+        >
+            Hyr
+        </button>
+
+
+        <p
+            id="loginMessage"
+            class="message"
+        ></p>
+
+    </form>
+
+</section>
+
+
+<div
+    id="adminApp"
+    class="admin-app hidden"
+>
+
+    <aside class="sidebar">
+
+        <div class="sidebar-logo">
+            herstory.al
+        </div>
+
+
+        <nav>
+
+            <button
+                class="nav-item active"
+                data-section="dashboard"
+            >
+                Kryefaqja
+            </button>
+
+            <button
+                class="nav-item"
+                data-section="orders"
+            >
+                Porosit&euml;
+            </button>
+
+            <button
+                class="nav-item"
+                data-section="products"
+            >
+                Produktet
+            </button>
+
+            <button
+                class="nav-item"
+                data-section="categories"
+            >
+                Kategorit&euml;
+            </button>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <a
+                href="/"
+                target="_blank"
+            >
+                Shiko dyqanin
+            </a>
+
+            <button
+                id="logoutButton"
+            >
+                Dil
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <main class="admin-main">
+
+        <header class="admin-header">
+
+            <div>
+
+                <h1
+                    id="sectionTitle"
+                >
+                    Kryefaqja
+                </h1>
+
+                <p
+                    id="adminUserText"
+                ></p>
+
+            </div>
+
+
+            <button
+                id="mobileMenuButton"
+                class="mobile-menu"
+            >
+                Menu
+            </button>
+
+        </header>
+
+
+        <section
+            id="section-dashboard"
+            class="admin-section active"
+        >
+
+            <div
+                id="statsGrid"
+                class="stats-grid"
+            ></div>
+
+
+            <div class="panel">
+
+                <div class="panel-heading">
+
+                    <div>
+
+                        <h2>
+                            Porosit&euml; e fundit
+                        </h2>
+
+                        <p>
+                            Aktiviteti m&euml; i fundit
+                            i dyqanit.
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        id="dashboardRefreshButton"
+                        class="secondary"
+                    >
+                        Rifresko
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="recentOrders"
+                ></div>
+
+            </div>
+
+        </section>
+
+
+        <section
+            id="section-orders"
+            class="admin-section"
+        >
+
+            <div class="panel">
+
+                <div class="panel-heading">
+
+                    <div>
+
+                        <h2>
+                            Porosit&euml;
+                        </h2>
+
+                        <p>
+                            Ndrysho statusin dhe
+                            ruhet automatikisht.
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        id="refreshOrdersButton"
+                        class="secondary"
+                    >
+                        Rifresko
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="ordersList"
+                    class="table-wrap"
+                ></div>
+
+            </div>
+
+        </section>
+
+
+        <section
+            id="section-products"
+            class="admin-section"
+        >
+
+            <div class="panel">
+
+                <div class="panel-heading">
+
+                    <div>
+
+                        <h2>
+                            Produktet
+                        </h2>
+
+                        <p>
+                            Menaxho produktet,
+                            stokun dhe mediat.
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        id="newProductButton"
+                        class="admin-primary"
+                    >
+                        + Produkt i ri
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="productsAdminList"
+                    class="table-wrap"
+                ></div>
+
+            </div>
+
+        </section>
+
+
+        <section
+            id="section-categories"
+            class="admin-section"
+        >
+
+            <div class="category-layout">
+
+
+                <div class="panel">
+
+                    <h2>
+                        Shto kategori
+                    </h2>
+
+                    <p>
+                        Kategoria aktive shfaqet
+                        automatikisht te klienti.
+                    </p>
+
+
+                    <form
+                        id="quickCategoryForm"
+                    >
+
+                        <label>
+
+                            Emri i kategoris&euml;
+
+                            <input
+                                name="name"
+                                placeholder="P.sh. Fustane"
+                                required
+                            >
+
+                        </label>
+
+
+                        <label>
+
+                            Slug
+
+                            <input
+                                name="slug"
+                                placeholder="fustane"
+                                required
+                            >
+
+                        </label>
+
+
+                        <label>
+
+                            Renditja
+
+                            <input
+                                name="sort_order"
+                                type="number"
+                                value="0"
+                            >
+
+                        </label>
+
+
+                        <button
+                            type="submit"
+                            class="admin-primary full"
+                        >
+                            Shto kategorin&euml;
+                        </button>
+
+
+                        <p
+                            id="quickCategoryMessage"
+                            class="message"
+                        ></p>
+
+                    </form>
+
+                </div>
+
+
+                <div class="panel">
+
+                    <div class="panel-heading">
+
+                        <div>
+
+                            <h2>
+                                Kategorit&euml; ekzistuese
+                            </h2>
+
+                            <p>
+                                Aktivizo ose &ccedil;aktivizo
+                                kategorit&euml;.
+                            </p>
+
+                        </div>
+
+
+                        <button
+                            id="refreshCategoriesButton"
+                            class="secondary"
+                        >
+                            Rifresko
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        id="categoriesAdminList"
+                    ></div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<div
+    id="productModal"
+    class="admin-modal"
+>
+
+    <form
+        id="productForm"
+        class="admin-modal-card large"
+    >
+
+        <div class="modal-heading">
+
+            <h2
+                id="productModalTitle"
+            >
+                Produkt
+            </h2>
+
+
+            <button
+                type="button"
+                data-close="productModal"
+            >
+                &times;
+            </button>
+
+        </div>
+
+
+        <input
+            name="id"
+            type="hidden"
+        >
+
+
+        <div class="form-grid">
+
+
+            <label>
+
+                Emri
+
+                <input
+                    name="name"
+                    required
+                >
+
+            </label>
+
+
+            <label>
+
+                SKU
+
+                <input
+                    name="sku"
+                    required
+                >
+
+            </label>
+
+
+            <label>
+
+                Slug
+
+                <input
+                    name="slug"
+                    required
+                >
+
+            </label>
+
+
+            <label>
+
+                Kategoria
+
+                <select
+                    name="category_id"
+                    id="productCategory"
+                >
+
+                    <option value="">
+                        Pa kategori
+                    </option>
+
+                </select>
+
+            </label>
+
+
+            <label>
+
+                &Ccedil;mimi
+
+                <input
+                    name="price"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    required
+                >
+
+            </label>
+
+
+            <label>
+
+                &Ccedil;mimi i vjet&euml;r
+
+                <input
+                    name="compare_at_price"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                >
+
+            </label>
+
+
+            <label>
+
+                Stoku
+
+                <input
+                    name="stock_quantity"
+                    type="number"
+                    min="0"
+                    value="0"
+                >
+
+            </label>
+
+
+            <label>
+
+                Paralajm&euml;rim p&euml;r stok
+
+                <input
+                    name="low_stock_threshold"
+                    type="number"
+                    min="0"
+                    value="5"
+                >
+
+            </label>
+
+
+            <label class="span-2">
+
+                P&euml;rshkrimi i shkurt&euml;r
+
+                <input
+                    name="short_description"
+                >
+
+            </label>
+
+
+            <label class="span-2">
+
+                P&euml;rshkrimi
+
+                <textarea
+                    name="description"
+                    rows="5"
+                ></textarea>
+
+            </label>
+
+        </div>
+
+
+        <div class="checkbox-row">
+
+            <label>
+
+                <input
+                    name="is_active"
+                    type="checkbox"
+                    checked
+                >
+
+                Aktiv
+
+            </label>
+
+
+            <label>
+
+                <input
+                    name="is_featured"
+                    type="checkbox"
+                >
+
+                I ve&ccedil;uar
+
+            </label>
+
+
+            <label>
+
+                <input
+                    name="track_inventory"
+                    type="checkbox"
+                    checked
+                >
+
+                Ndiq stokun
+
+            </label>
+
+        </div>
+
+
+        <div
+            id="mediaArea"
+            class="media-area hidden"
+        >
+
+            <h3>
+                Foto dhe video
+            </h3>
+
+
+            <div
+                id="productMediaList"
+                class="media-grid"
+            ></div>
+
+
+            <label class="upload-box">
+
+                <strong>
+                    Shto foto ose video
+                </strong>
+
+                <span>
+                    JPG, PNG, WEBP, MP4 ose WEBM
+                </span>
+
+                <input
+                    id="mediaFileInput"
+                    type="file"
+                    accept="image/*,video/mp4,video/webm,video/quicktime"
+                >
+
+            </label>
+
+        </div>
+
+
+        <p
+            id="productMessage"
+            class="message"
+        ></p>
+
+
+        <button
+            type="submit"
+            class="admin-primary full"
+        >
+            Ruaj produktin
+        </button>
+
+    </form>
+
+</div>
+
+
+<script src="/admin/config.js?v=4"></script>
+<script src="/admin/admin.js?v=7"></script>
+
+</body>
+
+</html>

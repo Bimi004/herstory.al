@@ -1,0 +1,24 @@
+# HERSTORY.AL
+
+# Dependencies
+backend/node_modules/
+
+# Secrets
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# Local backups
+backend/backup-*/
+backend/backup-*
+
+# Logs
+backend/npm-debug.log*
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+# Local test files
+backend/test-upload.png
