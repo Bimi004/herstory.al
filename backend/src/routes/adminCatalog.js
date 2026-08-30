@@ -67,6 +67,11 @@ router.get('/categories', async (req, res, next) => {
 
 router.get('/summary', async (req, res, next) => {
     try {
+        const allowedPeriods = ['today', '7d', '30d', 'all'];
+        const period = allowedPeriods.includes(req.query.period)
+            ? req.query.period
+            : 'today';
+
         const [
             productsResult,
             ordersResult,
@@ -78,7 +83,7 @@ router.get('/summary', async (req, res, next) => {
 
             supabase
                 .from('orders')
-                .select('id,total_amount,order_status,payment_status'),
+                .select('id,total_amount,order_status,payment_status,created_at'),
 
             supabase
                 .from('categories')
@@ -99,15 +104,33 @@ router.get('/summary', async (req, res, next) => {
             p => Number(p.stock_quantity) <= Number(p.low_stock_threshold)
         );
 
-        const newOrders = orders.filter(
-            o => o.order_status === 'new'
-        );
+        const now = new Date();
+        let startDate = null;
 
-        const activeOrders = orders.filter(
+        if (period === 'today') {
+            startDate = new Date(now);
+            startDate.setHours(0, 0, 0, 0);
+        }
+
+        if (period === '7d') {
+            startDate = new Date(now);
+            startDate.setDate(startDate.getDate() - 7);
+        }
+
+        if (period === '30d') {
+            startDate = new Date(now);
+            startDate.setDate(startDate.getDate() - 30);
+        }
+
+        const periodOrders = startDate
+            ? orders.filter(o => new Date(o.created_at) >= startDate)
+            : orders;
+
+        const activePeriodOrders = periodOrders.filter(
             o => !['cancelled', 'returned'].includes(o.order_status)
         );
 
-        const revenue = activeOrders.reduce(
+        const revenue = activePeriodOrders.reduce(
             (sum, o) => sum + Number(o.total_amount || 0),
             0
         );
@@ -115,12 +138,15 @@ router.get('/summary', async (req, res, next) => {
         res.json({
             success: true,
             summary: {
+                period,
                 products: products.length,
                 active_products: activeProducts.length,
                 low_stock: lowStock.length,
                 categories: categories.filter(c => c.is_active).length,
-                orders: orders.length,
-                new_orders: newOrders.length,
+                orders: periodOrders.length,
+                new_orders: periodOrders.filter(
+                    o => o.order_status === 'new'
+                ).length,
                 revenue
             }
         });
@@ -129,5 +155,4 @@ router.get('/summary', async (req, res, next) => {
         next(error);
     }
 });
-
 module.exports = router;

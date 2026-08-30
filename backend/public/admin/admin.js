@@ -383,16 +383,27 @@ async function loadEverything() {
 }
 
 
-async function loadSummary() {
+let dashboardPeriod = 'today';
+
+async function loadSummary(period = dashboardPeriod) {
+
+    dashboardPeriod = period;
 
     const result =
         await request(
-            '/api/admin/catalog/summary'
+            '/api/admin/catalog/summary?period=' +
+            encodeURIComponent(period)
         );
 
     const s =
         result.summary;
 
+    const periodNames = {
+        today: 'Sot',
+        '7d': '7 dit\u00EB',
+        '30d': '30 dit\u00EB',
+        all: 'Gjithsej'
+    };
 
     const cards = [
 
@@ -402,8 +413,8 @@ async function loadSummary() {
         ],
 
         [
-            'Porosi t\u00EB reja',
-            s.new_orders
+            'Porosi - ' + periodNames[period],
+            s.orders
         ],
 
         [
@@ -412,13 +423,58 @@ async function loadSummary() {
         ],
 
         [
-            'Xhiro porosish',
+            'Xhiro - ' + periodNames[period],
             money(
                 s.revenue
             )
         ]
     ];
 
+
+    const statsGrid = document.getElementById('statsGrid');
+
+    let periodBar = document.getElementById('dashboardPeriodBar');
+
+    if (!periodBar) {
+        periodBar = document.createElement('div');
+        periodBar.id = 'dashboardPeriodBar';
+        periodBar.style.cssText =
+            'display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px 0;';
+
+        statsGrid.parentNode.insertBefore(periodBar, statsGrid);
+    }
+
+    periodBar.innerHTML = [
+        ['today', 'Sot'],
+        ['7d', '7 dit\u00EB'],
+        ['30d', '30 dit\u00EB'],
+        ['all', 'Gjithsej']
+    ].map(([value, label]) => `
+        <button
+            type="button"
+            data-dashboard-period="${value}"
+            style="
+                padding:8px 14px;
+                border-radius:8px;
+                border:1px solid #ccc;
+                cursor:pointer;
+                font-weight:600;
+                ${value === dashboardPeriod
+                    ? 'background:#111;color:#fff;'
+                    : 'background:#fff;color:#111;'}
+            "
+        >${label}</button>
+    `).join('');
+
+    periodBar
+        .querySelectorAll('[data-dashboard-period]')
+        .forEach(button => {
+            button.addEventListener('click', () => {
+                loadSummary(
+                    button.dataset.dashboardPeriod
+                );
+            });
+        });
 
     document
         .getElementById(
