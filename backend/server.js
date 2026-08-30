@@ -71,3 +71,7 @@ app.listen(PORT, () => {
 
 
 
+
+
+// Export Express app for Vercel
+module.exports = app;
