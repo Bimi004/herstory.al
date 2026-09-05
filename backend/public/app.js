@@ -93,23 +93,18 @@ const TEXT = {
 
 function money(value) {
 
-    return new Intl.NumberFormat(
-        'sq-AL',
-        {
-            style:
-                'currency',
+    const amount =
+        Number(value || 0);
 
-            currency:
-                'EUR',
-
-            minimumFractionDigits:
-                2,
-
-            maximumFractionDigits:
-                2
-        }
-    ).format(
-        Number(value || 0)
+    return (
+        new Intl.NumberFormat(
+            'sq-AL',
+            {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }
+        ).format(amount) +
+        ' Lek'
     );
 }
 
@@ -1177,9 +1172,37 @@ document
 renderCart();
 
 loadStore();
-/* HERSTORY_GLOBALS_V1 */
+/* HERSTORY_GLOBALS_V2 */
+
 try {
-    window.products = products;
-    window.cart = cart;
-    window.addToCart = addToCart;
+
+    Object.defineProperty(
+        window,
+        'products',
+        {
+            configurable: true,
+
+            get() {
+                return products;
+            }
+        }
+    );
+
+
+    Object.defineProperty(
+        window,
+        'cart',
+        {
+            configurable: true,
+
+            get() {
+                return cart;
+            }
+        }
+    );
+
+
+    window.addToCart =
+        addToCart;
+
 } catch (_) {}
