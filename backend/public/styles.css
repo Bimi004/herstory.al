@@ -1268,3 +1268,103 @@ footer strong {
     }
 
 }
+
+
+/* =========================================================
+   HERSTORY_HERO_MONOGRAM_V1
+   Logo dekorative ne anen e djathte te hero.
+   ========================================================= */
+
+.hero {
+    position: relative;
+    overflow: hidden;
+}
+
+
+/*
+   Logoja reale e HerStory.
+   E zmadhuar dhe e zbutur si watermark.
+*/
+.herstory-hero-monogram {
+    position: absolute;
+
+    z-index: 0;
+
+    top: 50%;
+    right: 3%;
+
+    width: min(42vw, 680px);
+    aspect-ratio: 1 / 1;
+
+    transform:
+        translateY(-50%);
+
+    background-image:
+        url("/assets/herstory-favicon.png");
+
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+
+    opacity: 0.075;
+
+    /*
+       Multiply ndihmon qe background-i bezhe
+       i logos te shkrihet me hero background.
+    */
+    mix-blend-mode: multiply;
+
+    pointer-events: none;
+    user-select: none;
+}
+
+
+/*
+   Gjithe permbajtja reale e hero-s
+   qendron mbi watermark.
+*/
+.hero > *:not(.herstory-hero-monogram) {
+    position: relative;
+    z-index: 2;
+}
+
+
+/*
+   Desktop i madh
+*/
+@media (min-width: 1400px) {
+
+    .herstory-hero-monogram {
+        right: 5%;
+        width: min(40vw, 720px);
+    }
+}
+
+
+/*
+   Tablet
+*/
+@media (max-width: 900px) {
+
+    .herstory-hero-monogram {
+        right: -12%;
+        width: 65vw;
+        opacity: 0.06;
+    }
+}
+
+
+/*
+   Telefon
+*/
+@media (max-width: 600px) {
+
+    .herstory-hero-monogram {
+        top: 44%;
+        right: -30%;
+
+        width: 100vw;
+
+        opacity: 0.055;
+    }
+}
