@@ -712,10 +712,56 @@
     }
 
 
+    /*
+    HERSTORY_FREEZE_FIX_V1
+
+    MutationObserver u hoq sepse ndryshimet qe
+    enhanceCards() bente ne DOM mund ta ndiznin
+    observer-in perseri.
+
+    Ky version kontrollon DOM-in ne menyre te kufizuar.
+    */
+
+    let enhanceScheduled = false;
+
     const observer =
         new MutationObserver(
-            () => {
-                enhanceCards();
+            mutations => {
+
+                const relevant =
+                    mutations.some(
+                        mutation =>
+                            Array.from(
+                                mutation.addedNodes || []
+                            ).some(
+                                node =>
+                                    node.nodeType === 1 &&
+                                    (
+                                        node.matches?.(
+                                            '.product-card'
+                                        ) ||
+                                        node.querySelector?.(
+                                            '.product-card'
+                                        )
+                                    )
+                            )
+                    );
+
+                if (
+                    !relevant ||
+                    enhanceScheduled
+                ) {
+                    return;
+                }
+
+                enhanceScheduled = true;
+
+                requestAnimationFrame(
+                    () => {
+                        enhanceScheduled = false;
+                        enhanceCards();
+                    }
+                );
             }
         );
 
