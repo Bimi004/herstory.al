@@ -32,7 +32,7 @@
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0
             }
-        ).format(amount) + ' Lek';
+        ).format(amount) + ' ALL';
     }
 
 

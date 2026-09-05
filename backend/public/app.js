@@ -104,7 +104,7 @@ function money(value) {
                 maximumFractionDigits: 0
             }
         ).format(amount) +
-        ' Lek'
+        ' ALL'
     );
 }
 
