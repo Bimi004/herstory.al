@@ -1177,3 +1177,9 @@ document
 renderCart();
 
 loadStore();
+/* HERSTORY_GLOBALS_V1 */
+try {
+    window.products = products;
+    window.cart = cart;
+    window.addToCart = addToCart;
+} catch (_) {}
