@@ -1198,6 +1198,188 @@ async function(id, active) {
 };
 
 
+
+// HERSTORY_PRODUCT_FORM_SAVE_V1
+document
+    .getElementById('productForm')
+    .addEventListener(
+        'submit',
+        async event => {
+
+            event.preventDefault();
+
+            const form = event.target;
+            const message =
+                document.getElementById(
+                    'productMessage'
+                );
+
+            const getValue = name => {
+                const element = form.elements[name];
+                if (!element) return '';
+                return String(
+                    element.value ?? ''
+                ).trim();
+            };
+
+            const optionalNumber = name => {
+                const value = getValue(name);
+                return value === ''
+                    ? null
+                    : Number(value);
+            };
+
+            const checkboxValue = (
+                name,
+                fallback
+            ) => {
+                const element =
+                    form.elements[name];
+
+                return element
+                    ? Boolean(element.checked)
+                    : fallback;
+            };
+
+            const id = getValue('id');
+
+            const payload = {
+                name: getValue('name'),
+                slug: getValue('slug'),
+                sku: getValue('sku'),
+
+                short_description:
+                    getValue('short_description') || null,
+
+                description:
+                    getValue('description') || null,
+
+                price:
+                    Number(getValue('price') || 0),
+
+                compare_at_price:
+                    optionalNumber('compare_at_price'),
+
+                cost_price:
+                    optionalNumber('cost_price'),
+
+                stock_quantity:
+                    Number(
+                        getValue('stock_quantity') || 0
+                    ),
+
+                low_stock_threshold:
+                    Number(
+                        getValue('low_stock_threshold') || 5
+                    ),
+
+                track_inventory:
+                    checkboxValue(
+                        'track_inventory',
+                        true
+                    ),
+
+                is_active:
+                    checkboxValue(
+                        'is_active',
+                        true
+                    ),
+
+                is_featured:
+                    checkboxValue(
+                        'is_featured',
+                        false
+                    ),
+
+                category_id:
+                    getValue('category_id') || null,
+
+                weight_grams:
+                    optionalNumber('weight_grams'),
+
+                meta_title:
+                    getValue('meta_title') || null,
+
+                meta_description:
+                    getValue('meta_description') || null
+            };
+
+            try {
+
+                message.textContent =
+                    'Duke ruajtur...';
+
+                const result =
+                    await request(
+                        id
+                            ? `/api/products/${id}`
+                            : '/api/products',
+                        {
+                            method:
+                                id
+                                    ? 'PATCH'
+                                    : 'POST',
+
+                            headers: {
+                                'Content-Type':
+                                    'application/json'
+                            },
+
+                            body:
+                                JSON.stringify(payload)
+                        }
+                    );
+
+                const savedProduct =
+                    result.product;
+
+                if (
+                    savedProduct &&
+                    savedProduct.id
+                ) {
+
+                    form.elements.id.value =
+                        savedProduct.id;
+
+                    const mediaArea =
+                        document.getElementById(
+                            'mediaArea'
+                        );
+
+                    if (mediaArea) {
+                        mediaArea
+                            .classList
+                            .remove('hidden');
+                    }
+
+                    await loadProductMedia(
+                        savedProduct.id
+                    );
+                }
+
+                await Promise.all([
+                    loadProducts(),
+                    loadSummary()
+                ]);
+
+                message.textContent =
+                    id
+                        ? 'Produkti u përditësua me sukses.'
+                        : 'Produkti u shtua me sukses. Tani mund të shtosh foto ose video.';
+
+            } catch (error) {
+
+                console.error(
+                    'Product save error:',
+                    error
+                );
+
+                message.textContent =
+                    error.message ||
+                    'Produkti nuk mund të ruhej.';
+            }
+        }
+    );
 async function loadProductMedia(
     productId
 ) {
