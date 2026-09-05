@@ -1063,3 +1063,88 @@ th {
     }
 
 }
+
+
+/* HERSTORY_MULTI_PRODUCT_V1 */
+
+.field-help {
+    display: block;
+    color: #777;
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.product-category-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(2,minmax(0,1fr));
+    gap: 8px;
+}
+
+.product-category-option {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center;
+    gap: 10px !important;
+    min-height: 48px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    background: white;
+    cursor: pointer;
+}
+
+.product-category-option input {
+    width: 21px !important;
+    height: 21px !important;
+    min-height: auto !important;
+    flex: 0 0 21px;
+}
+
+.pending-media-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 15px;
+    border: 1px dashed var(--border);
+    border-radius: 12px;
+}
+
+.pending-media-card span {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+
+@media(max-width:720px) {
+
+    .product-category-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .product-category-option {
+        min-height: 52px;
+        font-size: 15px;
+    }
+
+    #productForm input,
+    #productForm select,
+    #productForm textarea {
+        min-height: 48px;
+        font-size: 16px;
+    }
+
+    #productForm textarea {
+        min-height: 105px;
+    }
+
+    #productForm .admin-primary.full {
+        min-height: 52px;
+        font-size: 16px;
+    }
+
+    #productForm .media-grid {
+        grid-template-columns:
+            repeat(2,1fr);
+    }
+}

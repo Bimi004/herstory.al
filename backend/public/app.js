@@ -379,11 +379,23 @@ function renderProducts() {
         products.filter(
             product => {
 
+                const productCategoryIds =
+                    Array.isArray(
+                        product.category_ids
+                    )
+                        ? product.category_ids
+                        : (
+                            product.category_id
+                                ? [product.category_id]
+                                : []
+                        );
+
                 const categoryMatch =
                     selectedCategory ===
                         'all' ||
-                    product.category_id ===
-                        selectedCategory;
+                    productCategoryIds.includes(
+                        selectedCategory
+                    );
 
                 const searchable =
                     (

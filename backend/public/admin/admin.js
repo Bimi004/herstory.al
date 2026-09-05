@@ -1015,6 +1015,161 @@ function updateProductCategoryOptions() {
 }
 
 
+
+function getSelectedProductCategoryIds() {
+
+    return Array.from(
+        document.querySelectorAll(
+            '#productCategories input[type="checkbox"]:checked'
+        )
+    )
+        .map(
+            input => input.value
+        )
+        .filter(Boolean);
+}
+
+
+function renderProductCategoryCheckboxes(
+    selectedIds = []
+) {
+
+    const target =
+        document.getElementById(
+            'productCategories'
+        );
+
+    if (!target) {
+        return;
+    }
+
+    const selected =
+        new Set(
+            selectedIds || []
+        );
+
+    if (!categories.length) {
+
+        target.innerHTML =
+            '<div class="empty">Nuk ka kategori aktive.</div>';
+
+        return;
+    }
+
+    target.innerHTML =
+        categories
+            .map(category => `
+
+                <label
+                    class="product-category-option"
+                >
+
+                    <input
+                        type="checkbox"
+                        value="${escapeHtml(
+                            category.id
+                        )}"
+                        ${selected.has(
+                            category.id
+                        )
+                            ? 'checked'
+                            : ''}
+                    >
+
+                    <span>
+                        ${escapeHtml(
+                            category.name
+                        )}
+                    </span>
+
+                </label>
+
+            `)
+            .join('');
+
+    target
+        .querySelectorAll(
+            'input[type="checkbox"]'
+        )
+        .forEach(input => {
+
+            input.addEventListener(
+                'change',
+                () => {
+
+                    const ids =
+                        getSelectedProductCategoryIds();
+
+                    const legacy =
+                        document.getElementById(
+                            'productCategory'
+                        );
+
+                    if (legacy) {
+                        legacy.value =
+                            ids[0] || '';
+                    }
+                }
+            );
+        });
+}
+
+
+async function loadProductCategorySelection(
+    product
+) {
+
+    const fallback =
+        product?.category_id
+            ? [product.category_id]
+            : [];
+
+    renderProductCategoryCheckboxes(
+        fallback
+    );
+
+    if (!product?.id) {
+        return;
+    }
+
+    try {
+
+        const result =
+            await request(
+                `/api/products/${product.id}/categories`
+            );
+
+        const ids =
+            Array.isArray(
+                result.category_ids
+            )
+                ? result.category_ids
+                : fallback;
+
+        renderProductCategoryCheckboxes(
+            ids
+        );
+
+        const legacy =
+            document.getElementById(
+                'productCategory'
+            );
+
+        if (legacy) {
+            legacy.value =
+                ids[0] || '';
+        }
+
+    } catch (error) {
+
+        console.error(
+            'Category selection error:',
+            error
+        );
+    }
+}
+
+
 function openProductModal(
     product = null
 ) {
@@ -1050,6 +1205,10 @@ function openProductModal(
 
     form.elements.category_id.value =
         product?.category_id || '';
+
+    loadProductCategorySelection(
+        product
+    );
 
     form.elements.price.value =
         product?.price ?? '';
@@ -1113,11 +1272,11 @@ function openProductModal(
         );
 
 
-    if (product?.id) {
+    mediaArea
+        .classList
+        .remove('hidden');
 
-        mediaArea
-            .classList
-            .remove('hidden');
+    if (product?.id) {
 
         loadProductMedia(
             product.id
@@ -1125,9 +1284,16 @@ function openProductModal(
 
     } else {
 
-        mediaArea
-            .classList
-            .add('hidden');
+        const target =
+            document.getElementById(
+                'productMediaList'
+            );
+
+        if (target) {
+
+            target.innerHTML =
+                '<div class="empty">Zgjidh foton tani. Ajo ngarkohet pasi te ruash produktin.</div>';
+        }
     }
 
 
@@ -1243,9 +1409,17 @@ document
 
             const id = getValue('id');
 
+            const selectedCategoryIds =
+                getSelectedProductCategoryIds();
+
             const payload = {
                 name: getValue('name'),
-                slug: getValue('slug'),
+                slug:
+                    getValue('slug') ||
+                    slugify(
+                        getValue('name')
+                    ) ||
+                    'produkt',
                 sku: getValue('sku'),
 
                 short_description:
@@ -1291,8 +1465,12 @@ document
                         false
                     ),
 
+                category_ids:
+                    selectedCategoryIds,
+
                 category_id:
-                    getValue('category_id') || null,
+                    selectedCategoryIds[0] ||
+                    null,
 
                 weight_grams:
                     optionalNumber('weight_grams'),
@@ -1350,6 +1528,57 @@ document
                         mediaArea
                             .classList
                             .remove('hidden');
+                    }
+
+                    const pendingMediaInput =
+                        document.getElementById(
+                            'mediaFileInput'
+                        );
+
+                    const pendingFile =
+                        pendingMediaInput &&
+                        pendingMediaInput.files &&
+                        pendingMediaInput.files.length
+                            ? pendingMediaInput.files[0]
+                            : null;
+
+                    if (pendingFile) {
+
+                        message.textContent =
+                            'Produkti u ruajt. Duke ngarkuar foton...';
+
+                        const mediaData =
+                            new FormData();
+
+                        mediaData.append(
+                            'file',
+                            pendingFile
+                        );
+
+                        try {
+
+                            await request(
+                                `/api/media/product/${savedProduct.id}`,
+                                {
+                                    method: 'POST',
+                                    body: mediaData
+                                }
+                            );
+
+                            pendingMediaInput.value =
+                                '';
+
+                        } catch (mediaError) {
+
+                            console.error(
+                                'Media upload error:',
+                                mediaError
+                            );
+
+                            message.textContent =
+                                'Produkti u ruajt, por fotoja nuk u ngarkua: ' +
+                                mediaError.message;
+                        }
                     }
 
                     await loadProductMedia(
@@ -1517,9 +1746,27 @@ document
 
             if (!productId) {
 
-                alert(
-                    'Ruaj produktin fillimisht.'
-                );
+                const message =
+                    document.getElementById(
+                        'productMessage'
+                    );
+
+                const target =
+                    document.getElementById(
+                        'productMediaList'
+                    );
+
+                if (target) {
+
+                    target.innerHTML =
+                        '<div class="pending-media-card"><strong>Fotoja u zgjodh.</strong><span>Do te ngarkohet automatikisht kur te ruash produktin.</span></div>';
+                }
+
+                if (message) {
+
+                    message.textContent =
+                        'Fotoja eshte gati per ngarkim.';
+                }
 
                 return;
             }

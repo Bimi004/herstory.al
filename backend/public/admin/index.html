@@ -17,7 +17,7 @@
 
     <link
         rel="stylesheet"
-        href="/admin/admin.css?v=4"
+        href="/admin/admin.css?v=multi-product-1"
     >
 
 </head>
@@ -509,31 +509,37 @@
             </label>
 
 
-            <label>
-
-                Slug
-
-                <input
-                    name="slug"
-                    required
-                >
-
-            </label>
+            <input
+                name="slug"
+                type="hidden"
+            >
 
 
-            <label>
+            <label
+                class="span-2 product-category-field"
+            >
 
-                Kategoria
+                Kategorite
+
+                <span class="field-help">
+                    Mund te zgjedhesh nje ose disa kategori.
+                </span>
+
+                <div
+                    id="productCategories"
+                    class="product-category-grid"
+                ></div>
 
                 <select
                     name="category_id"
                     id="productCategory"
+                    class="hidden"
+                    tabindex="-1"
+                    aria-hidden="true"
                 >
-
                     <option value="">
                         Pa kategori
                     </option>
-
                 </select>
 
             </label>
@@ -665,7 +671,7 @@
 
         <div
             id="mediaArea"
-            class="media-area hidden"
+            class="media-area"
         >
 
             <h3>
@@ -719,7 +725,7 @@
 
 
 <script src="/admin/config.js?v=4"></script>
-<script src="/admin/admin.js?v=product-save-1"></script>
+<script src="/admin/admin.js?v=multi-product-1"></script>
 
 </body>
 
